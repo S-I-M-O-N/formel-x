@@ -1,0 +1,49 @@
+# Gambas Form File 2.0
+
+{ Form Form
+  MoveScaled(0,0,81,55)
+  Text = ("Spurwechsel")
+  { imgSpurwechsel PictureBox
+    MoveScaled(0,0,81,55)
+    Stretch = True
+  }
+  { lblSpur1 Label
+    MoveScaled(24,7,49,5)
+    Font = Font["Times New Roman,+8"]
+    Background = Color.TextBackground
+    Text = ("Fahrzeug Spur 1 auf Spur 2")
+    Alignment = Align.Center
+  }
+  { lblSpur2 Label
+    MoveScaled(24,14,49,5)
+    Font = Font["Times New Roman,+8"]
+    Background = Color.TextBackground
+    Text = ("Fahrzeug Spur 2 auf Spur 3")
+    Alignment = Align.Center
+  }
+  { lblSpur3 Label
+    MoveScaled(24,21,49,5)
+    Font = Font["Times New Roman,+8"]
+    Background = Color.TextBackground
+    Text = ("Fahrzeug Spur 3 auf Spur 4")
+    Alignment = Align.Center
+  }
+  { lblSpur4 Label
+    MoveScaled(24,28,49,5)
+    Font = Font["Times New Roman,+8"]
+    Background = Color.TextBackground
+    Text = ("Fahrzeug Spur 4 auf Spur 1")
+    Alignment = Align.Center
+  }
+  { lblSpurX Label
+    MoveScaled(24,14,49,5)
+    Font = Font["Times New Roman,+8"]
+    Background = Color.TextBackground
+    Text = ("Fahrzeug Spur 2 auf Spur 1")
+    Alignment = Align.Center
+  }
+  { btnOK Button
+    MoveScaled(7,43,12,4)
+    Text = ("OK")
+  }
+}

@@ -1,0 +1,18 @@
+# Gambas Project File 2.0
+# Compiled with Gambas 2.21.0
+Title=Formel-X
+Startup=FMain
+Version=1.0.6
+Library=gb.qt
+Library=gb.net
+Library=gb.sdl.sound
+Description=Formel X, ein Rundenzähler für SlotCar-Bahnen über eine Lichtschranke.
+Authors=Hermann Friedhoff (Programm)\nRolf Wagner (Schaltpläne)\nDominique Lasserre (Veröffentlichung)
+TabSize=2
+Translate=1
+Language=de
+ExecPath=/home/hermann/Dokumente/0-Programmieren-0/formel-x/Formel-X.gambas
+Maintainer=benoit
+Vendor=Princeton
+Address=benoit@localhost
+License=General Public Licence

@@ -1,0 +1,17 @@
+# Gambas Form File 2.0
+
+{ Form Form
+  MoveScaled(0,0,85,64)
+  Text = ("Hilfe")
+  Border = Window.Fixed
+  { txaHilfe TextArea
+    MoveScaled(2,2,81,53)
+    Text = ("Die Datei README fehlt!")
+    ReadOnly = True
+    Wrap = True
+  }
+  { btnOK Button
+    MoveScaled(36,58,13,4)
+    Text = ("OK")
+  }
+}

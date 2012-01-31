@@ -1,0 +1,129 @@
+' Gambas class file
+
+' Formel-X, a Round counter for slotcar-roads about a light barrier.
+' ----------------------------------------------------------------------------
+' FBestenliste IS part OF Formel-X.
+'
+' Copyright (C) 2011, 2012 Hermann Friedhoff <foto-schubser@arcor.de>
+'
+' Formel-X IS free software: you can redistribute it AND / OR modify
+' it under the terms OF the GNU General PUBLIC License AS published by
+' the Free Software Foundation, either version 3 OF the License, OR
+' (at your option) any later version.
+'
+' Formel - X IS distributed IN the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty OF
+' MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.See the
+' GNU General PUBLIC License FOR more details.
+'
+' You should have received a COPY OF the GNU General PUBLIC License
+' along WITH Formel-X. If NOT, see <http://www.gnu.org/licenses/>.
+' ----------------------------------------------------------------------------
+
+PUBLIC sInitPfad AS String = User.Home & "/." & Application.Name          ' Pfad zum versteckten Ordner im User-Ordner
+PUBLIC sBilderOrdner AS String = "/images"                                ' Ordner der Bilder
+PUBLIC sStrecke AS String = sInitPfad & "/Standard"                       ' Pfad & Name für Strecken und Listen
+PUBLIC sPokalIcon AS String                                               ' Pfad & Name für das Pokal-Icon
+PUBLIC iAnzahl AS Integer = 99                                            ' Listen Reihen 99, ohne die neuen Einträge anzeigen
+PUBLIC sListe AS String[iAnzahl]                                          ' Liste für die 99 Besten
+
+PUBLIC SUB _new()
+  DIM sDatei AS String                                                    ' Pfad & Name
+  DIM sDatenPfad AS String                                                ' Pfad für die Programm-Dateien
+  sDatenPfad = File.Load(sInitPfad & "/Datenpfad.init")                   ' Dateienpfad laden
+  sDatei = sDatenPfad & sBilderOrdner & "/r-z.png"                        ' Pfad und Name vom Programm-Icon
+  IF Exist(sDatei) THEN FBestenliste.Icon = Picture[sDatei]               ' Programm-Icon laden und anzeigen
+  sDatei = sDatenPfad & sBilderOrdner & "/Bestenliste.jpg"                ' Pfad und Name vom Bestenliste-Bild
+  IF Exist(sDatei) THEN imgBestenliste.Picture = Picture[sDatei]          ' Bestenliste-Bild laden und anzeigen
+  sPokalIcon = sDatenPfad & sBilderOrdner & "/Pokal-I.png"                ' Pfad & Name vom Pokal-Icon
+  FBestenliste.Text = "Bestenliste - " & Application.Name                 ' Dialogname um Programmnamen erweitern
+  grdListe.Columns.Count = 5                                              ' Anzahl Posten
+  grdListe.Rows.Count = iAnzahl                                           ' Anzahl Reihen
+  grdListe.Rows.Height = 25                                               ' Höhe der Reihen
+  grdListe.Columns[0].Width = 25                                          ' Breite Posten 0, Nr.
+  grdListe.Columns[1].Width = 25                                          ' Breite Posten 1, X für neu
+  grdListe.Columns[2].Width = 150                                         ' Breite Posten 2, Name
+  grdListe.Columns[3].Width = 170                                         ' Breite Posten 3, Fahrzeug
+  grdListe.Columns[4].Width = 50                                          ' Breite Posten 4, Zeit
+  ListenPfadName_holen()                                                  ' Pfad & Name der Listendatei holen
+  ListeLaden()                                                            ' Liste laden
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+PUBLIC SUB Form_Open()
+  FBestenliste.ShowModal                                                  ' Dialog öffnen und Programm auf beschäftigt setzen
+END
+
+PUBLIC SUB Form_Close()
+  ME.Close                                                                ' Dialog schließen und zurück zum Programm
+END
+
+PUBLIC SUB btnOK_Click()                                                  ' der Knopf "OK" wurde gedrückt
+  Form_Close()                                                            ' Form_Close() zum Beenden aufrufen
+END
+
+PUBLIC SUB ListenPfadName_holen()                                         ' Pfad & Name der Listendatei holen
+  DIM sDatei AS String                                                    ' Pfad & Dateiname
+  DIM hDatei AS File                                                      ' Handle der Datei
+  DIM sZeile AS String                                                    ' eine Zeile
+  sDatei = sInitPfad & "/" & Application.Name & ".init"                   ' Pfad & Name der Initdatei
+  IF Exist(sDatei) THEN                                                   ' wenn eine Initdatei existiert
+    OPEN sDatei FOR READ AS #hDatei                                       ' Initdatei öffnen
+      WHILE NOT Eof(hDatei)                                               ' bis zum Dateiende wiederholen
+        LINE INPUT #hDatei, sZeile                                        ' eine Zeile der Initdatei einlesen
+        IF InStr(sZeile, "Strecke=") THEN sStrecke = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+      WEND
+    CLOSE #hDatei                                                         ' Initdatei schließen
+  ENDIF
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+PUBLIC SUB ListeLaden()                                                   ' Liste der 99 Besten laden
+  DIM sPDE AS String                                                      ' Pfad & Dateiname
+  DIM sDatei AS String                                                    ' Pfad & Dateiname
+  DIM hDatei AS File                                                      ' Handle der Datei
+  DIM sZeile AS String                                                    ' eine Zeile
+  DIM sReihe AS String[]                                                  ' eine Reihe aus der Liste
+  DIM sPosten AS String                                                   ' ein Posten einer Reihe
+  DIM iReihe AS Integer = 0                                               ' Zähler für die Reihen
+  DIM iPosten AS Integer = 0                                              ' Zähler für die Posten
+  sDatei = sStrecke & ".liste"                                            ' Pfad & Dateiname der Listendatei
+  IF Exist(sDatei) THEN                                                   ' wenn eine Listendatei existiert
+    OPEN sDatei FOR READ AS #hDatei                                       ' Datei öffnen
+      WHILE NOT Eof(hDatei) AND iReihe < grdListe.Rows.Count              ' bis zum Dateiende und max Anzahl Reihen wiederholen
+        LINE INPUT #hDatei, sZeile                                        ' eine Zeile der Datei einlesen
+        sZeile = Replace$(sZeile, Chr(34), "")                            ' alle " aus der Zeile entferne
+        sReihe = Split(sZeile, ",")                                       ' Reihe in Posten aufteilen
+        FOR EACH sPosten IN sReihe                                        ' Posten den Zellen zuweisen
+          SELECT CASE iPosten                                             ' Posten auswählen
+            CASE 0                                                        ' Nr.
+              IF sPosten <> "0" THEN                                      ' ein neuer Eintrag?
+                grdListe[iReihe, 1].Picture = Picture[sPokalIcon]         ' neuen Eintrag mit einem Pokal kennzeichnen
+              ENDIF
+              grdListe[iReihe, 0].Alignment = 2                           ' Posten 1 rechtsbündig
+              grdListe[iReihe, 0].Text = iReihe + 1                       ' Nr. an Posten 1 übergeben
+            CASE 1                                                        ' Pokal
+              grdListe[iReihe, 1].Alignment = 3                           ' Posten 2 mittig
+            CASE 2                                                        ' Fahrer
+              grdListe[iReihe, 2].Text = sPosten                          ' Fahrer an Posten 3 übergeben
+            CASE 3                                                        ' Fahrzeug
+              grdListe[iReihe, 3].Text = sPosten                          ' Fahrzeug an Posten 4 übergeben
+            CASE 4                                                        ' Zeit
+              grdListe[iReihe, 4].Alignment = 2                           ' Posten 5 rechtsbündig
+              sPosten = Replace$(sPosten, ":", ",")                       ' alle : aus Posten 5 durch , ersetzen
+              grdListe[iReihe, 4].Text = sPosten                          ' Zeit an Posten 5 übergeben
+          END SELECT
+          INC iPosten                                                     ' Posten um 1 erhöhen
+        NEXT
+        iPosten = 0                                                       ' Posten auf 0 setzen
+        INC iReihe                                                        ' Reihe um 1 erhöhen
+      WEND
+    CLOSE #hDatei                                                         ' Datei schließen
+    sPDE = Right$(sStrecke, Len(sStrecke) - RInStr(sStrecke, "/"))        ' den Pfad entfernen
+    FBestenliste.Text = sPDE & " - Bestenliste - Formel-X"                ' neuer Titel für den Dialog Liste
+  ENDIF
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END

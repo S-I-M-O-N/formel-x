@@ -1,0 +1,132 @@
+                        Beschreibung von Formel-X (29.01.2012)
+
+
+                                1. Hardware & Software
+                                2. Installation
+                                3. Menüs
+                                4. Funktionsweise
+                                5. Warum, wieso, weshalb?
+                                6. Für Wen?
+
+
+1. Hardware & Software
+
+Ein aktueller Computer mit RS232 oder einem USB<->RS232 Adapter, Linux, z.B.
+Kubuntu 11.04, ein Bauplan mit Teileliste für 2 Spuren ist in der Datei
+"Bauplan.pdf" enthalten.
+
+
+2. Installation
+
+Gambas 2 oder höher ,gb, gb.qt, gb.net und gb.sdl.sound mit dem Paketmanager
+installieren. Den Ordner "Formel-X" auf irgendein Speicher-Medium wie
+Festplatte kopieren, zum Starten von "Formel-X" die Datei "Formel-X.gambas"
+im Ordner "Formel-X" ausführen.
+
+Formel-X entfernen, den Ordner "Formel-X", "HOME/.Formel-X" löschen und
+Gambas 2 mit dem Paketmanager entfernen!
+
+
+3. Menüs
+
+- Datei
+
+--- Neu                         ein neues Rennen mit Grundeinstellungen
+--- Laden...                    ein gespeichertes Rennen laden
+--- Speichern...                aktuelles Rennen speichern
+--- Hintergrund laden...        ein Bild als Hintergrund laden
+--- Beenden                     Programm beenden und Einstellungen speichern
+
+- Rennen -
+
+--- Starten                     das Rennen wird gestartet
+--- Abbrechen                   Abbruch eines laufenden Rennen
+--- Bestenliste...              die 100 Besten Formel-X Fahrer
+--- Tonausgabe                  Musik zu verschiedenen Aktionen
+--- 4 Spuren                    2 oder 4 Spuren einstellen
+--- Port Einstellungen...       Einstellungen für die Schnittstelle
+
+- ? -
+
+--- Hilfe...                    diese Textdatei
+--- Bauplan...                  Bauplan für eine Lichtschranke
+--- Info...                     Infos zum Programm
+
+
+4. Funktionsweise
+
+Das Rennen beginnt mit der Ampelphase, die Ampel blinkt 5 mal im Sekundentakt
+und bleibt dann für 3 - 6 Sekunden an. Während dieser Zeit wird ein
+durchfahren der Lichtschranke als Fehlstart gewertet und mit einer Sekunde
+Strafzeit belegt, die Ampel geht auf Dauerlicht und am PC geht ein Dialog auf
+der die Spur des Fehlstarts anzeigt. Der Verursacher hat nun Zeit um sein
+Fahrzeug zurück zu stellen.
+
+Wenn Alle bereit sind den Dialog mit OK bestätigen, die Ampelphase beginnt
+wieder von vorne. Nach dem erlöschen der Ampelphase läuft das Rennen und die
+Runden werden gezählt, wenn die eingestellten Runden von allen Fahrern
+gefahren wurden ist der erste Teil von dem Rennen beendet. Die Ampel ist auf
+Dauerlicht und ein Dialog am PC fordert zum Spurwechsel auf, alle Fahrer
+können nun Ihre Fahrzeuge auf die angezeigte Spur stellen.
+
+Sind die Spuren gewechselt wird mit OK im Dialog der zweite Teil vom Rennen
+gestartet, es wird wieder mit der oben beschriebenen Ampelphase begonnen. Wenn
+Alle Fahrer den zweiten Teil vom Rennen beendet haben geht die Ampel auf
+Dauerlicht, am PC erscheint ein Dialog mit den Daten vom Gewinner des Rennen.
+
+Hat ein Fahrer es geschafft in die Bestenliste zu kommen wird es mit einem
+kleinen Pokal vor dem Namen angezeigt,
+
+Bei 4 Spuren gibt es natürlich 3 Spurwechselphasen, es sind auch 4 Ampelphasen
+abzuwarten ;-).
+
+
+5. Warum, wieso, weshalb?
+
+Warum, weil mir die Rechner mit Formel-X für Windows und RS232 ausgehen, auch
+gibt es Probleme mit der 1999 verwendeten Programmier-Software ab Windows XP.
+Die Software (dll-Datei) um die RS232 anzusprechen funktioniert nur bis COM2,
+was eine Nutzung über einen USB <-> RS232 Adapter nicht zulässt, wäre ja dann
+COM3 :-( .
+
+Wieso, nur so zum Spaß ;-). Nein, 2004 wurde von Windows auf Linux gewechselt,
+was liegt näher bei den Problemen als es unter Linux noch mal zu versuchen.
+Als erstes wurde eine Programmiersprache für Hobby-Programmierer gesucht, und
+mit Gambas auch recht schnell gefunden. Gambas hat alles was man als Hobby-
+Programmierer braucht, auch die RS232 (oder ein USB <-> RS232 Adapter) sind
+ohne großen Aufwand zu Programmieren.
+
+Weshalb, für einen Rundenzähler der eine Zukunft hat, oder um das Gehirn mal
+wieder etwas zu fordern. Nicht zu vergessen, in der Winterzeit kann man den
+Sommerhobbys nicht so gut frönen. Da ist z.B. unser Buggy der schon wartet,
+NEIN, kein VW-Buggy, es ist so ein Rohrgestell mit Motor und sogar für den
+Straßenverkehr zugelassen :-)) .
+
+6. Für Wen?
+
+Für SlotCar-Fahrer/innen zu Hause die nur so zum Spaß Runden drehen, naja,
+es soll schon eine genaue Zeitmessung mit ein paar Extras sein. Dann sollte
+es so kostengünstig wie möglich sein, was mir glaube ich gelungen ist. Die
+Software ist Open Source und der Schaltplan für eine Lichtschranke auch,
+Wer möchte kann/darf die Software/Hardware Seinen Bedürfnissen anpassen.
+
+
+Viel Spaß beim SlotCar fahren, wünschen die Autoren!
+
+
+Formel-X, ein Rundenzähler für SlotCar-Bahnen über eine Lichtschranke.
+
+Copyright (C) 2011,2012 Hermann Friedhoff <foto-schubser@arcor.de>
+
+Dieses Programm ist freie Software. Sie können es unter den Bedingungen der
+GNU General Public License, wie von der Free Software Foundation
+veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß Version 3
+der Lizenz, oder jeder späteren Version.
+
+Die Veröffentlichung dieses Programms erfolgt in der Hoffnung, daß es Ihnen
+von Nutzen sein wird, aber OHNE IRGENDEINE GARANTIE, sogar ohne die implizite
+Garantie der MARKTREIFE oder der VERWENDBARKEIT FÜR EINEN BESTIMMTEN ZWECK.
+Details finden Sie in der GNU General Public License.
+
+Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem
+Programm erhalten haben. Wenn nicht, siehe <http://www.gnu.org/licenses/>.

@@ -1,0 +1,25 @@
+# Gambas Form File 2.0
+
+{ Form Form
+  MoveScaled(0,0,99,70)
+  Text = ("Bestenliste")
+  Border = Window.Fixed
+  { imgBestenliste PictureBox
+    MoveScaled(0,0,99,70)
+    Stretch = True
+  }
+  { lblTitel Label
+    MoveScaled(12,7,54,4)
+    Font = Font["Times New Roman,+8"]
+    Background = Color.TextBackground
+    Text = ("Die Besten Formel X Fahrer")
+    Alignment = Align.Center
+  }
+  { grdListe GridView
+    MoveScaled(8,13,64,36)
+  }
+  { btnOK Button
+    MoveScaled(77,56,12,4)
+    Text = ("OK")
+  }
+}

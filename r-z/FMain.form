@@ -1,0 +1,649 @@
+# Gambas Form File 2.0
+
+{ Form Form
+  MoveScaled(9.4286,6.2857,158,110)
+  Text = ("Programm")
+  Border = Window.Fixed
+  { mnuDatei Menu
+    Text = ("&Datei")
+    { mnuNeu Menu
+      Text = ("&Neu")
+    }
+    { mnuLaden Menu
+      Text = ("&Laden...")
+    }
+    { mnuSpeichern Menu
+      Text = ("&Speichern...")
+    }
+    { mnuTrennerD1 Menu
+      Text = ("")
+    }
+    { mnuHintergrundLaden Menu
+      Text = ("&Hintergrund laden...")
+    }
+    { mnuTrennerD2 Menu
+      Text = ("")
+    }
+    { mnuBeenden Menu
+      Text = ("&Beenden")
+    }
+  }
+  { mnuRennen Menu
+    Text = ("&Rennen")
+    { mnuStarten Menu
+      Text = ("&Starten")
+      Checked = True
+    }
+    { mnuAbbrechen Menu
+      Text = ("&Abbrechen")
+    }
+    { mnuTrennerR1 Menu
+      Text = ("")
+    }
+    { mnuBestenliste Menu
+      Text = ("&Bestenliste...")
+    }
+    { mnuTonausgabe Menu
+      Text = ("&Tonausgabe")
+      Checked = True
+    }
+    { mnuVierSpuren Menu
+      Text = ("&4 Spuren")
+      Checked = True
+    }
+    { mnuPortEinstellungen Menu
+      Text = ("&Port Einstellungen...")
+    }
+  }
+  { mnuFragezeichen Menu
+    Text = ("&?")
+    { mnuHilfe Menu
+      Text = ("&Hilfe...")
+    }
+    { mnuBauplan Menu
+      Text = ("&Bauplan...")
+    }
+    { mnuTrennerF1 Menu
+      Text = ("")
+    }
+    { mnuInfo Menu
+      Text = ("&Info...")
+    }
+  }
+  { imgHintergrund PictureBox
+    MoveScaled(0,0,120,90)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Stretch = True
+    Alignment = Align.Normal
+  }
+  { txtStrecke TextBox
+    MoveScaled(24,5,71,6)
+    Font = Font["Times New Roman,+8"]
+    Text = ("Der gro\xC3\x9Fe Preis vom H\xC3\xBCttenring")
+    Alignment = Align.Center
+  }
+  { txtAnzahlRunden TextBox
+    MoveScaled(52,12,9,4)
+    Font = Font["Times New Roman,+5"]
+    Text = ("22")
+    Alignment = Align.Right
+  }
+  { txtLaengeSpur1 TextBox
+    MoveScaled(38,22,8,4)
+    Font = Font["Times New Roman,+5"]
+    Text = ("1934")
+    Alignment = Align.Right
+  }
+  { txtFahrerSpur1 TextBox
+    MoveScaled(33,28,28,4)
+    Font = Font["Times New Roman,+5"]
+    Text = ("Hermann Friedhoff")
+    Alignment = Align.Left
+  }
+  { txtFahrzeugSpur1 TextBox
+    MoveScaled(33,34,31,4)
+    Font = Font["Times New Roman,+5"]
+    Text = ("BMW V12 (DELL)")
+    Alignment = Align.Left
+  }
+  { txtLaengeSpur2 TextBox
+    MoveScaled(87,22,8,4)
+    Font = Font["Times New Roman,+5"]
+    Text = ("1934")
+    Alignment = Align.Right
+  }
+  { txtFahrerSpur2 TextBox
+    MoveScaled(82,28,28,4)
+    Font = Font["Times New Roman,+5"]
+    Text = ("Kirsten Friedhoff")
+    Alignment = Align.Left
+  }
+  { txtFahrzeugSpur2 TextBox
+    MoveScaled(82,34,31,4)
+    Font = Font["Times New Roman,+5"]
+    Text = ("Audi R8 (Gulf)")
+    Alignment = Align.Left
+  }
+  { lblSpuren Label
+    MoveScaled(46,12,5,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("Xx")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblRunden Label
+    MoveScaled(62,12,11,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("Runden")
+    Border = Border.Sunken
+  }
+  { lblSpur Label
+    MoveScaled(15,22,9,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("Spur:")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblNr1 Label
+    MoveScaled(33,22,4,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("1")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblLaenge1 Label
+    MoveScaled(47,22,11,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("cm lang")
+    Alignment = Align.Left
+    Border = Border.Sunken
+  }
+  { lblNr2 Label
+    MoveScaled(82,22,4,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("2")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblLaenge2 Label
+    MoveScaled(96,22,11,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("cm lang")
+    Alignment = Align.Left
+    Border = Border.Sunken
+  }
+  { lblFahrer Label
+    MoveScaled(13,28,11,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("Fahrer:")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblFahrzeug Label
+    MoveScaled(10,34,14,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("Fahrzeug:")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblStrafzeit Label
+    MoveScaled(11,40,13,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("Strafzeit:")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblStrafzeitSpur1 Label
+    MoveScaled(50,40,14,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblStrafzeitSpur2 Label
+    MoveScaled(99,40,14,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblRunde Label
+    MoveScaled(13,48,11,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("Runde:")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblRundeSpur1 Label
+    MoveScaled(55,48,9,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("0")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblRundeSpur2 Label
+    MoveScaled(104,48,9,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("0")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblLetzteRunde Label
+    MoveScaled(5,54,19,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("Letzte Runde:")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblLetzteRundeSpur1 Label
+    MoveScaled(44,54,20,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblLetzteRundeSpur2 Label
+    MoveScaled(93,54,20,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblBesteRunde Label
+    MoveScaled(6,60,18,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("Beste Runde:")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblBesteRundeSpur1 Label
+    MoveScaled(44,60,20,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblBesteRundeSpur2 Label
+    MoveScaled(93,60,20,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblFahrzeit Label
+    MoveScaled(11,66,13,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("Fahrzeit:")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblFahrzeitSpur1 Label
+    MoveScaled(38,66,26,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblFahrzeitSpur2 Label
+    MoveScaled(87,66,26,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur1 Label
+    MoveScaled(13,74,11,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("Spur 1:")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur1Spur1 Label
+    MoveScaled(38,74,26,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur2Spur1 Label
+    MoveScaled(87,74,26,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur2 Label
+    MoveScaled(13,80,11,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("Spur 2:")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur1Spur2 Label
+    MoveScaled(38,80,26,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur2Spur2 Label
+    MoveScaled(87,80,26,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { txtXY TextLabel
+    MoveScaled(1,1,117,3)
+    Visible = False
+    Background = Color.TextBackground
+    Text = ("XY")
+    Alignment = Align.Normal
+  }
+  { SPort #SerialPort
+    #X = 1064
+    #Y = 14
+    FlowControl = SerialPort.None
+    PortName = "/dev/ttyUSB0"
+  }
+  { txtLaengeSpur3 TextBox
+    MoveScaled(120,22,8,4)
+    Enabled = False
+    Font = Font["Times New Roman,+5"]
+    Text = ("1934")
+    Alignment = Align.Right
+  }
+  { txtFahrerSpur3 TextBox
+    MoveScaled(115,28,28,4)
+    Enabled = False
+    Font = Font["Times New Roman,+5"]
+    Text = ("Manuela Witzke")
+    Alignment = Align.Left
+  }
+  { txtFahrzeugSpur3 TextBox
+    MoveScaled(115,34,31,4)
+    Enabled = False
+    Font = Font["Times New Roman,+5"]
+    Text = ("Panoz Esperante GTR-1")
+    Alignment = Align.Left
+  }
+  { txtLaengeSpur4 TextBox
+    MoveScaled(126,22,8,4)
+    Enabled = False
+    Font = Font["Times New Roman,+5"]
+    Text = ("1934")
+    Alignment = Align.Right
+  }
+  { txtFahrerSpur4 TextBox
+    MoveScaled(121,28,28,4)
+    Enabled = False
+    Font = Font["Times New Roman,+5"]
+    Text = ("Daniela Krischker")
+    Alignment = Align.Left
+  }
+  { txtFahrzeugSpur4 TextBox
+    MoveScaled(121,34,31,4)
+    Enabled = False
+    Font = Font["Times New Roman,+5"]
+    Text = ("Porsche GT1 Evo")
+    Alignment = Align.Left
+  }
+  { lblNr3 Label
+    MoveScaled(115,22,4,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("3")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblLaenge3 Label
+    MoveScaled(129,22,11,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("cm lang")
+    Alignment = Align.Left
+    Border = Border.Sunken
+  }
+  { lblNr4 Label
+    MoveScaled(121,22,4,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("4")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblLaenge4 Label
+    MoveScaled(135,22,11,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("cm lang")
+    Alignment = Align.Left
+    Border = Border.Sunken
+  }
+  { lblStrafzeitSpur3 Label
+    MoveScaled(132,40,14,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblStrafzeitSpur4 Label
+    MoveScaled(138,40,14,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblRundeSpur3 Label
+    MoveScaled(138,48,9,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("0")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblRundeSpur4 Label
+    MoveScaled(143,48,9,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("0")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblLetzteRundeSpur3 Label
+    MoveScaled(126,54,20,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblLetzteRundeSpur4 Label
+    MoveScaled(132,54,20,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblBesteRundeSpur3 Label
+    MoveScaled(126,60,20,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblBesteRundeSpur4 Label
+    MoveScaled(132,60,20,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblFahrzeitSpur3 Label
+    MoveScaled(120,66,26,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblFahrzeitSpur4 Label
+    MoveScaled(126,66,26,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur3Spur1 Label
+    MoveScaled(120,74,26,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur4Spur1 Label
+    MoveScaled(126,74,26,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur3Spur2 Label
+    MoveScaled(120,80,26,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur4Spur2 Label
+    MoveScaled(126,80,26,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur3 Label
+    MoveScaled(13,86,11,4)
+    Visible = False
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("Spur 3:")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur1Spur3 Label
+    MoveScaled(38,86,26,4)
+    Visible = False
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur2Spur3 Label
+    MoveScaled(87,86,26,4)
+    Visible = False
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur3Spur3 Label
+    MoveScaled(120,86,26,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur4Spur3 Label
+    MoveScaled(126,86,26,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur4 Label
+    MoveScaled(13,92,11,4)
+    Font = Font["Times New Roman,+5"]
+    Background = Color.ButtonBackground
+    Text = ("Spur 4:")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur1Spur4 Label
+    MoveScaled(38,92,26,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur2Spur4 Label
+    MoveScaled(87,92,26,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur3Spur4 Label
+    MoveScaled(120,92,26,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+  { lblSpur4Spur4 Label
+    MoveScaled(126,92,26,4)
+    Font = Font["Courier 10 Pitch,+6"]
+    Background = Color.ButtonBackground
+    Text = ("00:00.00,000")
+    Alignment = Align.Right
+    Border = Border.Sunken
+  }
+}

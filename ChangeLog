@@ -1,0 +1,79 @@
+2012-01-31 Hermann Friedhoff <foto-schubser@arcor.de>
+ * Ordner für Töne & Bilder geändert und als globale Variable deklariert
+ * Ordner formel-x für erste Versuche mit GIT angelegt
+ * eine .gitignore Datei angelegt
+ * Version 1.0.6
+
+2012-01-29 Hermann Friedhoff <foto-schubser@arcor.de>
+ * neue Bilder für Menü/Info/... (werden vom Programm nachgeladen)
+ * in der README den Urheberrechts-Text ans Ende gestellt
+ * Version 1.0.4
+ * neue Ordnerstruktur für die Archive
+ * Pfad für die nachzuladenden Dateien neu geschrieben
+ * Version 1.0.5
+
+2012-01-28 Hermann Friedhoff <foto-schubser@arcor.de>
+ * AUTHORS & FormelX Datei erstellt
+ * README erweitert/korrigiert
+ * Texte AUTHORS, FormelX, COPYING, README & THANKS werden nachgeladen
+ * Version 1.0.3
+
+2012-01-27 Hermann Friedhoff <foto-schubser@arcor.de>
+ * README um eine Beschreibung erweitert
+ * THANKS minimal verändert
+ * auf .tar.gz umgestellt beim Einpacken/Komprimieren
+ * TODO mit offenen Punkten angelegt
+
+2012-01-26 Hermann Friedhoff <foto-schubser@arcor.de>
+ * Ordnerstruktur an den Standard weitestgehend angepaßt
+ * Copyright in den Quellen eingebunden
+ * im Programm von GPL 2 auf GPL 3 geändert
+ * Version 1.0.2
+
+2012-01-24 Hermann Friedhoff <foto-schubser@arcor.de>
+ * Ordnerstruktur von Formel-X neu organisiert
+ * ChangeLog Datei angelegt
+ * GPL COPYING Datei angelegt
+ * Dominique Lasserre als Autor für Veröffentlichung und Koordination
+ * Datei THANKS angelegt
+
+2012-01-23 Hermann Friedhoff <foto-schubser@arcor.de>
+ * kleinere Korrekturen vorgenommen
+ * ein paar Bilder verändert
+
+2012-01-20 Hermann Friedhoff <foto-schubser@arcor.de>
+ * von gb.gui auf gb.qt umgestellt, Darstellung für KDE und Gnome O.K.
+
+2012-01-19 Hermann Friedhoff <foto-schubser@arcor.de>
+ * Dominique Lasserre als Autor für Veröffentlichung
+
+2012-01-18 Hermann Friedhoff <foto-schubser@arcor.de>
+ * Rolf Wagner als Autor für die Schaltpläne eingefügt
+
+2012-01-17 Hermann Friedhoff <foto-schubser@arcor.de>
+ * Programmstruktur verbessert
+
+2012-01-11 Hermann Friedhoff <foto-schubser@arcor.de>
+ * GPL eingefügt
+
+2012-01-02 Hermann Friedhoff <foto-schubser@arcor.de>
+ * Auswahl 2 oder 4 Spuren integriert
+ * Hilfetext überarbeitet
+
+2011-12-28 Hermann Friedhoff <foto-schubser@arcor.de>
+ * Formel-X ist funktionsfähig
+
+2011-12-26 Hermann Friedhoff <foto-schubser@arcor.de>
+ * Laden... und Speichern... funktioniert
+ * Port Einstellungen... und Bauplan hinzugefügt
+
+2011-12-19 Hermann Friedhoff <foto-schubser@arcor.de>
+ * Menü neu struktuiert
+ * neue Menüeinträge Laden..., Speichern...
+
+2011-12-09 Hermann Friedhoff <foto-schubser@arcor.de>
+ * das Gerüst für Formel-X steht
+
+2011-12-06 Hermann Friedhoff <foto-schubser@arcor.de>
+ * Projekt Formel-X gestartet
+ * Version 0.0.0.

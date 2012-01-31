@@ -1,0 +1,463 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2002-11-01 04:27+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: FBestenliste.class:144
+msgid "Bestenliste"
+msgstr "Good list"
+
+#: FBestenliste.class:156
+msgid "Die Besten Formel X Fahrer"
+msgstr "The best Formel X drivers"
+
+#: FBestenliste.class:166 FFehlstart.class:137 FHilfe.class:74 FInfo.class:185
+#: FPortEinstellungen.class:194 FRennenBeendet.class:127
+#: FSpurwechsel.class:146
+msgid "OK"
+msgstr "OK"
+
+#: FFehlstart.class:87
+msgid "Fehlstart"
+msgstr "False start"
+
+#: FFehlstart.class:99
+msgid "Fehlstart von"
+msgstr "False start from"
+
+#: FFehlstart.class:107 FRennenBeendet.class:97
+msgid "Naubaddi Niemand"
+msgstr ""
+
+#: FFehlstart.class:115
+msgid "auf Spur"
+msgstr "on Track"
+
+#: FFehlstart.class:123 FRennenBeendet.class:113
+msgid "Raketopet 3000"
+msgstr ""
+
+#: FFehlstart.class:131
+msgid "plus eine Sekunde Strafzeit!"
+msgstr "plus one-second penal time!"
+
+#: FHilfe.class:62
+msgid "Hilfe"
+msgstr "Help"
+
+#: FHilfe.class:67
+msgid "Die Datei README fehlt!"
+msgstr "The file README is absent!"
+
+#: FInfo.class:90
+msgid "Info"
+msgstr ""
+
+#: FInfo.class:97
+msgid "Formel X"
+msgstr ""
+
+#: FInfo.class:102
+msgid "Programmiert mit Gambas"
+msgstr "Programmed with Gambas"
+
+#: FInfo.class:115
+msgid "Start: "
+msgstr ""
+
+#: FInfo.class:122
+msgid "Stand: "
+msgstr ""
+
+#: FInfo.class:129
+msgid "Die Datei Formel-X fehlt!"
+msgstr "The file Formel-X is absent!"
+
+#: FInfo.class:135
+msgid "Autoren"
+msgstr "Authoren"
+
+#: FInfo.class:145
+msgid "Die Datei AUTHORS fehlt!"
+msgstr "The file AUTHORS is absent!"
+
+#: FInfo.class:151
+msgid "Urheberrecht"
+msgstr "Copyright"
+
+#: FInfo.class:160
+msgid "Die Datei COPYING fehlt!"
+msgstr "The file COPYING is absent!"
+
+#: FInfo.class:166
+msgid "Danke an"
+msgstr "Thanks to"
+
+#: FInfo.class:175
+msgid "Die Datei THANKS fehlt!"
+msgstr "The file THANKS is absent!"
+
+#: FMain.class:1195
+msgid "Programm"
+msgstr "Program"
+
+#: FMain.class:1199
+msgid "&Datei"
+msgstr "&File"
+
+#: FMain.class:1202
+msgid "&Neu"
+msgstr "&New"
+
+#: FMain.class:1206
+msgid "&Laden..."
+msgstr "&Load..."
+
+#: FMain.class:1210
+msgid "&Speichern..."
+msgstr "&Save..."
+
+#: FMain.class:1218
+msgid "&Hintergrund laden..."
+msgstr "&Background load..."
+
+#: FMain.class:1226
+msgid "&Beenden"
+msgstr "&Quit"
+
+#: FMain.class:1231
+msgid "&Rennen"
+msgstr "&Race"
+
+#: FMain.class:1234
+msgid "&Starten"
+msgstr "&Starting"
+
+#: FMain.class:1239
+msgid "&Abbrechen"
+msgstr "&Break off"
+
+#: FMain.class:1247
+msgid "&Bestenliste..."
+msgstr "&Good list..."
+
+#: FMain.class:1251
+msgid "&Tonausgabe"
+msgstr "&Sound issue"
+
+#: FMain.class:1256
+msgid "&4 Spuren"
+msgstr "&4 Tracks"
+
+#: FMain.class:1261
+msgid "&Port Einstellungen..."
+msgstr "&Port settings..."
+
+#: FMain.class:1266
+msgid "&?"
+msgstr "&?"
+
+#: FMain.class:1269
+msgid "&Hilfe..."
+msgstr "&Help..."
+
+#: FMain.class:1273
+msgid "&Bauplan..."
+msgstr "&Construction plan..."
+
+#: FMain.class:1281
+msgid "&Info..."
+msgstr ""
+
+#: FMain.class:1296
+msgid "Der große Preis vom Hüttenring"
+msgstr "The large price of the hut ring"
+
+#: FMain.class:1303
+msgid "22"
+msgstr ""
+
+#: FMain.class:1310
+msgid "1934"
+msgstr ""
+
+#: FMain.class:1317
+msgid "Hermann Friedhoff"
+msgstr ""
+
+#: FMain.class:1324
+msgid "BMW V12 (DELL)"
+msgstr ""
+
+#: FMain.class:1338
+msgid "Kirsten Friedhoff"
+msgstr ""
+
+#: FMain.class:1345
+msgid "Audi R8 (Gulf)"
+msgstr ""
+
+#: FMain.class:1353
+msgid "Xx"
+msgstr ""
+
+#: FMain.class:1362
+msgid "Runden"
+msgstr "Rounds"
+
+#: FMain.class:1370
+msgid "Spur:"
+msgstr "Track:"
+
+#: FMain.class:1379 FPortEinstellungen.class:177
+msgid "1"
+msgstr ""
+
+#: FMain.class:1388
+msgid "cm lang"
+msgstr "cm long"
+
+#: FMain.class:1397 FPortEinstellungen.class:177
+msgid "2"
+msgstr ""
+
+#: FMain.class:1415
+msgid "Fahrer:"
+msgstr "Driver:"
+
+#: FMain.class:1424
+msgid "Fahrzeug:"
+msgstr "Vehicle:"
+
+#: FMain.class:1433
+msgid "Strafzeit:"
+msgstr "Penal time:"
+
+#: FMain.class:1442
+msgid "00,000"
+msgstr ""
+
+#: FMain.class:1460
+msgid "Runde:"
+msgstr "Round:"
+
+#: FMain.class:1469
+msgid "0"
+msgstr ""
+
+#: FMain.class:1487
+msgid "Letzte Runde:"
+msgstr "Last round:"
+
+#: FMain.class:1496
+msgid "00.00,000"
+msgstr ""
+
+#: FMain.class:1514
+msgid "Beste Runde:"
+msgstr "Best round:"
+
+#: FMain.class:1541
+msgid "Fahrzeit:"
+msgstr "Travel time:"
+
+#: FMain.class:1550
+msgid "00:00.00,000"
+msgstr ""
+
+#: FMain.class:1568
+msgid "Spur 1:"
+msgstr "Track 1:"
+
+#: FMain.class:1595
+msgid "Spur 2:"
+msgstr "Track 2:"
+
+#: FMain.class:1622
+msgid "XY"
+msgstr ""
+
+#: FMain.class:1643
+msgid "Manuela Witzke"
+msgstr ""
+
+#: FMain.class:1651
+msgid "Panoz Esperante GTR-1"
+msgstr ""
+
+#: FMain.class:1667
+msgid "Daniela Krischker"
+msgstr ""
+
+#: FMain.class:1675
+msgid "Porsche GT1 Evo"
+msgstr ""
+
+#: FMain.class:1683
+msgid "3"
+msgstr ""
+
+#: FMain.class:1701
+msgid "4"
+msgstr ""
+
+#: FMain.class:1846
+msgid "Spur 3:"
+msgstr "Track 3:"
+
+#: FMain.class:1893
+msgid "Spur 4:"
+msgstr "Track 4:"
+
+#: FPortEinstellungen.class:119
+msgid "Port Einstellungen"
+msgstr "Port settings"
+
+#: FPortEinstellungen.class:124
+msgid "Portname:"
+msgstr "Port Name:"
+
+#: FPortEinstellungen.class:129
+msgid "/dev/ttyUSB0"
+msgstr ""
+
+#: FPortEinstellungen.class:134
+msgid "Geschwindigkeit:"
+msgstr "Speed:"
+
+#: FPortEinstellungen.class:141
+msgid "1200"
+msgstr ""
+
+#: FPortEinstellungen.class:141
+msgid "2400"
+msgstr ""
+
+#: FPortEinstellungen.class:141
+msgid "4800"
+msgstr ""
+
+#: FPortEinstellungen.class:141
+msgid "9600"
+msgstr ""
+
+#: FPortEinstellungen.class:141
+msgid "19200"
+msgstr ""
+
+#: FPortEinstellungen.class:141
+msgid "38400"
+msgstr ""
+
+#: FPortEinstellungen.class:146
+msgid "Daten Bits:"
+msgstr "Data Bits"
+
+#: FPortEinstellungen.class:153
+msgid "8"
+msgstr ""
+
+#: FPortEinstellungen.class:153
+msgid "7"
+msgstr ""
+
+#: FPortEinstellungen.class:153
+msgid "6"
+msgstr ""
+
+#: FPortEinstellungen.class:153
+msgid "5"
+msgstr ""
+
+#: FPortEinstellungen.class:158
+msgid "Daten Prüfung:"
+msgstr "Parity:"
+
+#: FPortEinstellungen.class:165
+msgid "KEINE"
+msgstr "NONE"
+
+#: FPortEinstellungen.class:165
+msgid "Gleichmäßig"
+msgstr "Even"
+
+#: FPortEinstellungen.class:165
+msgid "Ungerade"
+msgstr "Odd"
+
+#: FPortEinstellungen.class:170
+msgid "Stopp Bits:"
+msgstr "Stop Bits"
+
+#: FPortEinstellungen.class:182
+msgid "Datenflusssteuerung:"
+msgstr "Flow Control:"
+
+#: FPortEinstellungen.class:189
+msgid "CRTSCTS"
+msgstr ""
+
+#: FPortEinstellungen.class:189
+msgid "XON/XOFF"
+msgstr ""
+
+#: FPortEinstellungen.class:189
+msgid "CRTSCTS + XON/XOFF"
+msgstr ""
+
+#: FRennenBeendet.class:86
+msgid "Rennen beendet"
+msgstr "Race finished"
+
+#: FRennenBeendet.class:105
+msgid "hat das Rennen gewonnen!"
+msgstr "if the running has won!"
+
+#: FRennenBeendet.class:121
+msgid "mittlere Rundenzeit"
+msgstr "middle round time"
+
+#: FSpurwechsel.class:97
+msgid "Spurwechsel"
+msgstr "Trace change"
+
+#: FSpurwechsel.class:108
+msgid "Fahrzeug Spur 1 auf Spur 2"
+msgstr "Vehicle track 1 on Track 2"
+
+#: FSpurwechsel.class:116
+msgid "Fahrzeug Spur 2 auf Spur 3"
+msgstr "Vehicle track 2 on Track 3"
+
+#: FSpurwechsel.class:124
+msgid "Fahrzeug Spur 3 auf Spur 4"
+msgstr "Vehicle track 3 on Track 4"
+
+#: FSpurwechsel.class:132
+msgid "Fahrzeug Spur 4 auf Spur 1"
+msgstr "Vehicle track 4 on Track 1"
+
+#: FSpurwechsel.class:140
+msgid "Fahrzeug Spur 2 auf Spur 1"
+msgstr "Vehicle track 2 on Track 1"
+
+#~ msgid "Die Datei existiert nicht."
+#~ msgstr "File not exist"
+
+#~ msgid "Fehler beim Laden der Datei."
+#~ msgstr "Mistake with the store of the file."
+
+#~ msgid "Fehler beim speichern der Datei."
+#~ msgstr "Mistakes with store to the file."
+
+#~ msgid ""
+#~ "Formel X, ein Rundenzähler für SlotCar-Bahnen über eine Lichtschranke."
+#~ msgstr "Formel-X, a Round counter for slotcar-roads about a light barrier."

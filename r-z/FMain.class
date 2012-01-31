@@ -1,0 +1,1088 @@
+' Gambas class file
+
+' Formel-X, a Round counter for slotcar-roads about a light barrier.
+' ----------------------------------------------------------------------------
+' FMain IS part OF Formel-X.
+'
+' Copyright (C) 2011, 2012 Hermann Friedhoff <foto-schubser@arcor.de>
+'
+' Formel-X IS free software: you can redistribute it AND / OR modify
+' it under the terms OF the GNU General PUBLIC License AS published by
+' the Free Software Foundation, either version 3 OF the License, OR
+' (at your option) any later version.
+'
+' Formel-X IS distributed IN the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty OF
+' MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.See the
+' GNU General PUBLIC License FOR more details.
+'
+' You should have received a COPY OF the GNU General PUBLIC License
+' along WITH Formel-X. If NOT, see <http://www.gnu.org/licenses/>.
+' ----------------------------------------------------------------------------
+
+'----------------------------------------------------------------------------------------------------------------------------------
+' >>> Globale Variablen
+'----------------------------------------------------------------------------------------------------------------------------------
+
+PUBLIC sDatenPfad AS String = ""                                          ' Pfad für die Programm-Dateien (harte Eingabe hier ;-) )
+PUBLIC sBilderOrdner AS String = "/images"                                ' Ordner der Bilder
+PUBLIC sTonOrdner AS String = "/sounds"                                   ' Ordner der Töne
+
+PUBLIC bBeenden AS Boolean = FALSE                                        ' Programm beenden auf nein setzen
+PUBLIC sInitPfad AS String = User.Home & "/." & Application.Name          ' Pfad & Name vom versteckten Ordner im Benutzer-Ordner
+PUBLIC sStrecke AS String = sInitPfad & "/Standard"                       ' aktuelle Strecke, Bestenliste und Hintergrund
+PUBLIC bTonausgabe AS Boolean = TRUE                                      ' mit Tonausgabe, ja = TRUE, nein = FALSE
+PUBLIC iSpuren AS Integer = 2                                             ' Anzahl eingestellter Spuren 2 oder 4
+PUBLIC iLAnzahl AS Integer = 103                                          ' Listenreihen 99, + 4 für die neuen Einträge
+PUBLIC saListe AS String[iLAnzahl]                                        ' Liste für die 99 Besten, + 4 für die neuen Einträge
+PUBLIC iRunden AS Integer = 22                                            ' Anzahl Runden
+PUBLIC iMaxRunden AS Integer = 9999                                       ' max. Anzahl Runden
+PUBLIC iRennen AS Integer = 0                                             ' 0 kein Rennen, 1, 2, 3, 4 = Rennen gestartet
+PUBLIC iFehlstart AS Integer = 0                                          ' 0 kein Fehlstart, 1, 2, 3, 4 = Spur Fehlstart
+PUBLIC iSpurenOK AS Integer = 0                                           ' 0 keine Spur OK, 1, 2, 3, 4 = Spuren OK
+PUBLIC saFahrerFahrzeug AS String[5, 3]                                   ' Anzahl der Fahrer & Fahrzeuge
+PUBLIC iaSpur AS Integer[5, 13]                                           ' Daten der Spuren vom Rennen
+
+'----------------------------------------------------------------------------------------------------------------------------------
+' >>> alle Dialoge die zum Rennen gehören aufrufen, nur zum Testen!
+'----------------------------------------------------------------------------------------------------------------------------------
+
+PUBLIC SUB lblRunden_MouseDown()
+  FFehlstart.Form_Open()
+  FSpurwechsel.Form_Open()
+  FRennenBeendet.Form_Open()
+END
+
+'----------------------------------------------------------------------------------------------------------------------------------
+' >>> Programm starten/beenden
+'----------------------------------------------------------------------------------------------------------------------------------
+
+PUBLIC SUB _new()
+  IF sDatenPfad = "" THEN                                                 ' wenn kein harter Pfad angegeben wurde
+    sDatenPfad = Application.Path                                         ' ist es der Programm-Pfad
+    IF RInStr(sDatenPfad, "/r-z") THEN                                    ' wenn im Interpreter gestartet wurde
+      sDatenPfad = Left$(sDatenPfad, RInStr(sDatenPfad, "/r-z") - 1)      ' "/r-z" aus dem Pfad entfernen
+    ENDIF
+  ENDIF
+  IF NOT Exist(sInitPfad) THEN                                            ' wenn noch kein Ordner für die Einstellungen existiert
+    MKDIR sInitPfad                                                       ' einen versteckten Ordner für die Einstellungen erstellen
+    EinstellungenErstellen()                                              ' Standard Einstellungen erstellen
+    EinstellungenSpeichern()                                              ' Standard Einstellungen speichern
+    StreckeErstellen()                                                    ' Standard Strecke erstellen
+    StreckeSpeichern()                                                    ' Standard Strecke speichern
+    BestenlisteErstellen()                                                ' Standard Bestenliste erstellen
+    BestenlisteSpeichern()                                                ' Standard Bestenliste speichern
+    PortErstellen()                                                       ' Standard Port erstellen
+    PortSpeichern()                                                       ' Standard Port speichern
+  ENDIF
+  File.Save(sInitPfad & "/Datenpfad.init", sDatenPfad)                    ' Dateienpfad in Datei schreiben
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+PUBLIC SUB Form_Open()
+  DIM sDatei AS String                                                    ' Pfad
+  sDatei = sDatenPfad & sBilderOrdner & "/r-z.png"                        ' Pfad und Name vom Programm-Icon
+  IF Exist(sDatei) THEN FMain.Icon = Picture[sDatei]                      ' Programm-Icon laden und anzeigen
+  EinstellungenLaden()                                                    ' Einstellungen laden
+  StreckeLaden()                                                          ' Strecke laden
+  BestenlisteLaden()                                                      ' Bestenliste laden
+  PortLaden()                                                             ' Port laden
+  mnuStarten.Checked = FALSE                                              ' Menüeintrag "Starten" auf "nein" setzen
+  mnuAbbrechen.Enabled = FALSE                                            ' Menüeintrag "Abbrechen" auf "aus" setzen
+  mnuTonausgabe.Checked = bTonausgabe                                     ' Menüeintrag "Tonausgabe" auf "ein" setzen
+  IF iSpuren = 2 THEN mnuVierSpuren.Checked = FALSE                       ' Menüeintrag "4 Spuren" bei 2 Spuren auf "nein" setzen
+  IF iSpuren = 4 THEN mnuVierSpuren.Checked = TRUE                        ' Menüeintrag "4 Spuren" bei 4 Spuren auf "ja" setzen
+  lblSpuren.Text = iSpuren & "x"                                          ' X in "Xx" durch Anzahl Spuren ersetzen
+  AnSpurenAnpassen(iSpuren)                                               ' Programm an Anzahl Spuren (2 oder 4) anpassen
+  txtAnzahlRunden.Text = iRunden                                          ' Anzahl Runden übernehmen/anzeigen
+  AnzeigeAktualisieren()                                                  ' Daten aller Spuren anzeigen
+  MusikAbspielen("hallo.wav")                                             ' Musikdatei abspielen
+END
+
+PUBLIC SUB Form_Close()
+  IF NOT bBeenden THEN                                                    ' nur 1* Tonausgabe wenn "Beenden" gewählt wurde
+    MusikAbspielen("gemein.wav")                                          ' Musikdatei abspielen
+    EinstellungenSpeichern()                                              ' Einstellungen speichern
+    IF bTonausgabe THEN WAIT 2                                            ' 2 Sekunden warten damit die Musik abgespielt wird
+  ENDIF 
+  bBeenden = TRUE                                                         ' beenden ist aktiv
+  ME.Close                                                                ' Programm beenden
+END
+
+'----------------------------------------------------------------------------------------------------------------------------------
+' >>> gewählten Menüeintrag abarbeiten
+'----------------------------------------------------------------------------------------------------------------------------------
+
+PUBLIC SUB mnuNeu_Click()                                                 ' Einstellungen, Strecke, Bestenliste & Port erstellen
+  EinstellungenErstellen()                                                ' Standard Einstellungen erstellen
+  EinstellungenSpeichern()                                                ' Standard Einstellungen speichern
+  StreckeErstellen()                                                      ' Standard Strecke erstellen
+  StreckeSpeichern()                                                      ' Standard Strecke speichern
+  BestenlisteErstellen()                                                  ' Standard Bestenliste erstellen
+  BestenlisteSpeichern()                                                  ' Standard Bestenliste speichern
+  PortErstellen()                                                         ' Standard Port erstellen
+  PortSpeichern()                                                         ' Standard Port speichern
+  IF iSpuren = 2 THEN mnuVierSpuren.Checked = FALSE                       ' Menüeintrag "4 Spuren" bei 2 Spuren auf "nein" setzen
+  IF iSpuren = 4 THEN mnuVierSpuren.Checked = TRUE                        ' Menüeintrag "4 Spuren" bei 4 Spuren auf "ja" setzen
+  lblSpuren.Text = iSpuren & "x"                                          ' X in "Xx" durch Anzahl Spuren ersetzen
+  AnSpurenAnpassen(iSpuren)                                               ' Programm an Anzahl Spuren (2 oder 4) anpassen
+  txtAnzahlRunden.Text = iRunden                                          ' Anzahl Runden anzeigen
+  AnzeigeAktualisieren()                                                  ' Daten aller Spuren anzeigen
+END
+
+PUBLIC SUB mnuLaden_Click()                                               ' Strecke laden...
+  DIM sDOF AS String                                                      ' Pfad & Name
+  Dialog.Title = Application.Name & " - Strecke laden"                    ' Laden... Dialog-Titel setzen
+  Dialog.Path = sInitPfad                                                 ' Laden... Dialog-Pfad vorgeben
+  Dialog.Filter = ["*.strecke", "Strecken Dateien"]                       ' Laden... Dialog-Filter setzen
+  IF Dialog.OpenFile() THEN RETURN                                        ' wenn nichts ausgewählt wurde hier abbrechen
+  sDOF = Dialog.Path                                                      ' Pfad & Name übernehmen
+  IF RInStr(sDOF, ".") THEN sDOF = Left$(sDOF, RInStr(sDOF, ".") - 1)     ' Pfad & Name ohne Extender
+  sStrecke = sDOF                                                         ' Pfad & Name für Strecke, Bestenliste & Hintergrund
+  StreckeLaden()                                                          ' Strecke laden
+  BestenlisteLaden()                                                      ' Bestenliste laden
+  EinstellungenSpeichern()                                                ' Einstellungen speichern
+  IF iSpuren = 2 THEN mnuVierSpuren.Checked = FALSE                       ' Menüeintrag "4 Spuren" bei 2 Spuren auf "nein" setzen
+  IF iSpuren = 4 THEN mnuVierSpuren.Checked = TRUE                        ' Menüeintrag "4 Spuren" bei 4 Spuren auf "ja" setzen
+  lblSpuren.Text = iSpuren & "x"                                          ' X in "Xx" durch Anzahl Spuren ersetzen
+  AnSpurenAnpassen(iSpuren)                                               ' Programm an Anzahl Spuren anpassen
+  txtAnzahlRunden.Text = iRunden                                          ' Anzahl Runden anzeigen
+  AnzeigeAktualisieren()                                                  ' Daten aller Spuren anzeigen
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+PUBLIC SUB mnuSpeichern_Click()                                           ' Strecke speichern...
+  DIM sDSF AS String                                                      ' Pfad & Name
+  Dialog.Title = Application.Name & " - Strecke speichern"                ' Speichern... Dialog-Titel setzen
+  Dialog.Path = sInitPfad & "/" & txtStrecke.Text & ".strecke"            ' Speichern... Dialog-Pfad & Name vorgeben
+  Dialog.Filter = ["*.strecke", "Strecken Dateien"]                       ' Speichern... Dialog-Filter setzen
+  IF Dialog.SaveFile() THEN RETURN                                        ' wenn nichts ausgewählt wurde hier abbrechen
+  sDSF = Dialog.Path                                                      ' Pfad & Name
+  IF RInStr(sDSF, ".") THEN sDSF = Left$(sDSF, RInStr(sDSF, ".") - 1)     ' Pfad & Name ohne Extender
+  sStrecke = sDSF                                                         ' neuer Pfad & Name für Strecke & Bestenliste
+  StreckeSpeichern()                                                      ' Strecke speichern
+  BestenlisteSpeichern()                                                  ' Bestenliste speichern
+  EinstellungenSpeichern()                                                ' Einstellungen speichern
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+PUBLIC SUB mnuHintergrundLaden_Click()                                    ' Hintergrund laden...
+  DIM sDOF AS String                                                      ' Pfad & Name
+  DIM sZiel AS String                                                     ' Pfad & Name
+  sDOF = User.Home                                                        ' Pfad zum User-Ordner
+  Dialog.Title = Application.Name & " - Hintergrund laden"                ' Laden... Dialog-Titel setzen
+  Dialog.Path = sDOF                                                      ' Laden... Dialog-Pfad vorgeben
+  Dialog.Filter = ["*.jpg", "Hintergrund Dateien"]                        ' Laden... Dialog-Filter setzen
+  IF Dialog.OpenFile() THEN RETURN                                        ' wenn nichts ausgewählt wurde hier abbrechen
+  sDOF = Dialog.Path                                                      ' Pfad & Name
+  sZiel = sInitPfad & "/" & txtStrecke.Text & Right$(sDOF, Len(sDOF) - RInStr(sDOF, ".") + 1)
+  IF Exist(sDOF) THEN SHELL "cp '" & sDOF & "' '" & sZiel & "'" WAIT      ' Bild zum versteckten Ordner kopieren
+  IF Exist(sDOF) THEN imgHintergrund.Picture = Picture[sDOF]              ' Hintergrund laden
+  IF RInStr(sZiel, ".") THEN sZiel = Left$(sZiel, RInStr(sZiel, ".") - 1) ' Pfad & Name ohne Extender
+  sStrecke = sZiel                                                        ' Pfad & Name für Strecke, Bestenliste & Hintergrund
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+PUBLIC SUB mnuBeenden_Click()                                             ' Programm beenden
+  Form_Close()                                                            ' Form_Close() zum Beenden aufrufen
+END
+
+PUBLIC SUB mnuStarten_Click()                                             ' Rennen starten
+  IF SPortEin() THEN                                                      ' wenn der Port OK ist das Rennen starten
+    MenuEinAus(FALSE)                                                     ' nur noch Menü-Eintrag "Abbrechen" möglich
+    StartEinstellungen(0, 12)                                             ' Einstellungen für den Start
+    iRennen = 0                                                           ' Zähler der Teilrennen für den Start auf 0 setzen
+    REPEAT                                                                ' das Rennen läuft
+      StartEinstellungen(5, 11)                                           ' Einstellungen für das Teilrennen
+      INC iRennen                                                         ' Rennen um 1 erhöhen
+      AnzeigeAktualisieren()                                              ' Daten aller Spuren anzeigen
+      IF iRennen <> 0 THEN AmpelPhase()                                   ' Ampelphase abwarten
+      IF iRennen <> 0 THEN TeilRennenFahren()                             ' Teilrennen fahren
+      IF iRennen <> 0 AND iRennen < iSpuren THEN Spurwechsel()            ' Spurwechsel durchführen
+    UNTIL iRennen = 0 OR iRennen = iSpuren                                ' Rennen abgebrochen oder beendet
+    IF iRennen = iSpuren THEN RennenBeendet()                             ' Rennen beendet, Gewinner ermitteln/speichern/anzeigen
+    MenuEinAus(TRUE)                                                      ' nur Menü-Eintrag "Abbrechen" nicht mehr möglich
+    SPortAus()                                                            ' Port ausschalten
+  ENDIF
+END
+
+PUBLIC SUB mnuAbbrechen_Click()                                           ' Rennen abbrechen
+  MusikAbspielen("nein.wav")                                              ' Musikdatei abspielen
+  iRennen = 0                                                             ' 0 für kein Rennen läuft
+END
+
+PUBLIC SUB mnuTonausgabe_Click()                                          ' Tonausgabe ein/aus schalten
+  mnuTonausgabe.Checked = NOT mnuTonausgabe.Checked                       ' Menüeintrag invertieren
+  IF mnuTonausgabe.Checked THEN                                           ' wenn "Tonausgabe" gesetzt ist
+    bTonausgabe = TRUE                                                    ' Ton einschalten
+  ELSE                                                                    ' wenn nicht
+    bTonausgabe = FALSE                                                   ' Ton ausschalten
+  ENDIF
+END
+
+PUBLIC SUB mnuVierSpuren_Click()                                          ' 4 Spuren ein/aus schalten
+  mnuVierSpuren.Checked = NOT mnuVierSpuren.Checked                       ' Menüeintrag invertieren
+  IF mnuVierSpuren.Checked THEN                                           ' wenn "4 Spuren" gesetzt ist
+    iSpuren = 4                                                           ' 4 Spuren einschalten
+  ELSE                                                                    ' wenn nicht
+    iSpuren = 2                                                           ' 2 Spuren einschalten
+  ENDIF
+  lblSpuren.Text = iSpuren & "x"                                          ' X in "Xx" durch Anzahl Spuren ersetzen
+  AnSpurenAnpassen(iSpuren)                                               ' Programm an die Anzahl der Spuren anpassen
+  StreckeSpeichern()                                                      ' Strecke speichern
+  BestenlisteSpeichern()                                                  ' Bestenliste speichern
+  EinstellungenSpeichern()                                                ' Einstellungen speichern
+END
+
+PUBLIC SUB mnuBestenliste_Click()                                         ' Bestenliste...
+  MusikAbspielen("klatchen.wav")                                          ' Musikdatei abspielen
+  FBestenliste.Form_Open()                                                ' Bestenliste... Dialog aufrufen
+  Music.Stop                                                              ' abspielen stoppen
+END
+
+PUBLIC SUB mnuPortEinstellungen_Click()                                   ' Port Einstellungen...
+  MusikAbspielen("gefahr.wav")                                            ' Musikdatei abspielen
+  FPortEinstellungen.Form_Open()                                          ' Port Einstellungen... Dialog aufrufen
+  PortLaden()                                                             ' Einstellungen für den Port laden
+  Music.Stop                                                              ' abspielen stoppen
+END
+
+PUBLIC SUB mnuHilfe_Click()                                               ' Hilfe...
+  MusikAbspielen("Twilight.wav")                                          ' Musikdatei abspielen
+  FHilfe.Form_Open()                                                      ' Hilfe... Dialog aufrufen
+  Music.Stop                                                              ' abspielen stoppen
+END
+
+PUBLIC SUB mnuBauplan_Click()                                             ' Bauplan...
+  DIM sDatei AS String                                                    ' Pfad & Name
+  sDatei = sDatenPfad & "/Bauplan.pdf"                                    ' Pfad & Name vom Bauplan
+  IF Exist(sDatei) THEN EXEC ["xdg-open", sDatei]                         ' Bauplan.pdf mit ??? anzeigen
+END
+
+PUBLIC SUB mnuInfo_Click()                                                ' Info...
+  MusikAbspielen("toccata.wav")                                           ' Musikdatei abspielen
+  FInfo.Form_Open()                                                       ' Info... Dialog aufrufen
+  Music.Stop                                                              ' abspielen stoppen
+END
+
+'----------------------------------------------------------------------------------------------------------------------------------
+' >>> Ampelphase und Fehlstart
+'----------------------------------------------------------------------------------------------------------------------------------
+
+PUBLIC SUB AmpelPhase()                                                   ' Ampel 5x eine Sekunde aus/ein, dann 3-6 Sekunden ein
+  DIM fStartZeit AS Float                                                 ' Startzeit
+  DIM fEndeZeit AS Float                                                  ' Endezeit
+  DIM iZahl AS Integer                                                    ' Zähler für das Blinken der Ampel
+  DIM bEinAus AS Boolean                                                  ' DTR (7) ein/aus schalten
+  REPEAT                                                                  ' Ampel ein/aus schalten
+    MusikAbspielen("starten.wav")                                         ' Musikdatei abspielen
+    iZahl = 1                                                             ' Ampelstart zurück setzen
+    iFehlstart = 0                                                        ' Fehlstart zurück setzen
+    WHILE iRennen <> 0 AND iZahl < 10                                     ' die Ampel soll 5x blinken
+      fStartZeit = Timer                                                  ' Startzeit festhalten
+      bEinAus = iZahl MOD 2                                               ' DTR (7) ein/aus schalten?
+      IF SPort.Status = Net.Active THEN SPort.RTS = bEinAus               ' DTR (7) ein/aus schalten
+      REPEAT                                                              ' Schleife für eine Sekunde
+        fEndeZeit = Timer - fStartZeit                                    ' Endezeit errechnen bis eine Sekunde vergangen ist
+        WAIT 0.001                                                        ' 0,001 Sekunden für Ereignisse warten
+        Fehlstart()                                                       ' kontrollieren ob ein Fehlstart vorliegt
+      UNTIL iRennen = 0 OR iFehlstart <> 0 OR fEndeZeit > 1               ' verlassen bei Abbrechen, Fehlstart, nach einer Sekunde
+      INC iZahl                                                           ' Zähler um 1 erhöhen
+    WEND
+    iZahl = Rnd(3, 6)                                                     ' zufällige Wartezeit von 3-6 Sekunden
+    WHILE iRennen <> 0 AND iFehlstart = 0 AND fEndeZeit < iZahl           ' Ampel zufällig noch 3-6 Sekunden an
+      fEndeZeit = Timer - fStartZeit                                      ' Endezeit errechnen bis 3-6 Sekunden vergangen sind
+      WAIT 0.001                                                          ' 0,1 Sekunden für Ereignisse warten
+      Fehlstart()                                                         ' kontrollieren ob ein Fehlstart vorliegt
+    WEND
+    IF iFehlstart <> 0 THEN FehlstartSpeichern()                          ' bei einem Fehlstart Daten speichern
+    IF SPort.Status = Net.Active THEN SPort.RTS = FALSE                   ' DTR (7) ausschalten
+  UNTIL iFehlstart = 0 OR iRennen = 0                                     ' verlassen bei kein Fehlstart oder Rennen abbrechen
+END
+
+PUBLIC SUB Fehlstart()                                                    ' kontrollieren ob ein Fehlstart vorliegt
+  IF SPort.DCD THEN iFehlstart = 1                                        ' Fehlstart auf Spur 1
+  IF SPort.DSR THEN iFehlstart = 2                                        ' Fehlstart auf Spur 2
+  IF SPort.CTS AND iSpuren = 4 THEN iFehlstart = 3                        ' Fehlstart auf Spur 3
+  IF SPort.RNG AND iSpuren = 4 THEN iFehlstart = 4                        ' Fehlstart auf Spur 4
+END
+
+PUBLIC SUB FehlstartSpeichern()                                           ' Fehlstart Daten speichern
+  DIM sDatei AS String                                                    ' Pfad & Name
+  DIM hDatei AS File                                                      ' Handle der Datei
+  IF SPort.Status = Net.Active THEN SPort.RTS = TRUE                      ' DTR (7) Ampel einschalten
+  MusikAbspielen("fehler.wav")                                            ' Musikdatei abspielen
+  INC iaSpur[iFehlstart, 12]                                              ' plus eine Strafsekunde für den Fehlstart
+  AnzeigeAktualisieren()                                                  ' Daten anzeigen
+  sDatei = sInitPfad & "/Fehlstart.info"                                  ' Pfad & Name der Fehlstartdatei
+  hDatei = OPEN sDatei FOR CREATE                                         ' Datei erstellen/überschreiben
+    PRINT #hDatei, Application.Name & " - Fehlstart Info"                 ' Name des Programms und Funktion der Datei
+    PRINT #hDatei, ""                                                     ' leere Zeile
+    PRINT #hDatei, "Fahrer=" & saFahrerFahrzeug[iFehlstart, 1]            ' Fehlstart Fahrer X
+    PRINT #hDatei, "Fahrzeug=" & saFahrerFahrzeug[iFehlstart, 2]          ' Fehlstart Fahrzeug X
+    PRINT #hDatei, "Spur=" & iFehlstart                                   ' Fehlstart Spur X
+  CLOSE #hDatei                                                           ' Datei schließen
+  FFehlstart.Form_Open()                                                  ' den Fehlstart Dialog aufrufen
+  Music.Stop                                                              ' abspielen stoppen
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+'----------------------------------------------------------------------------------------------------------------------------------
+' >>> Teilrennen fahren, Runden/Zeiten berechnen/anzeigen (X1 - X4 = Fahrer 1 – 4)
+'
+' Y0 = Fahrzeit gesamt    | Y1-Y4 = Zeit Spur 1 - 4 | Y5 = Runde              | Y6 = letzte Runde       | Y7 = beste Runde        |
+' Y8 = Start OK           | Y9 = Fahrzeit & EPZeit  | Y10 = Kontakttest       | Y11 = mittlere Zeit     | Y12 = Fehlstart         |
+'----------------------------------------------------------------------------------------------------------------------------------
+
+PUBLIC SUB TeilRennenFahren()                                             ' das Teilrennen läuft
+  DIM iStartZeit AS Integer                                               ' Zeit seit dem Programmstart
+  DIM iZeit AS Integer                                                    ' Zeit vom Teilrennen
+  iStartZeit = Int(Timer * 1000)                                          ' Zeit seit dem Start (Teilzeit) merken
+  iSpurenOK = 0                                                           ' Spuren OK auf 0 setzen
+  iRunden = Val(txtAnzahlRunden.Text)                                     ' Anzahl Runden übernehmen
+  REPEAT                                                                  ' Schleife für das Rennen
+    iZeit = Int(Timer * 1000 - iStartZeit)                                ' aktuelle Zeit vom Teilrennen berechnen
+    IF Sport.DCD THEN KontaktEinfahrt(1, iZeit)                           ' ---> Kontakt Einfahrt Spur 1
+    IF NOT Sport.DCD THEN KontaktAusfahrt(1, iZeit)                       ' Kontakt Ausfahrt Spur 1? --->
+    IF Sport.DSR THEN KontaktEinfahrt(2, iZeit)                           ' ---> Kontakt Einfahrt Spur 2
+    IF NOT Sport.DSR THEN KontaktAusfahrt(2, iZeit)                       ' Kontakt Ausfahrt Spur 2? --->
+    IF iSpuren = 4 THEN
+      IF Sport.CTS THEN KontaktEinfahrt(3, iZeit)                         ' ---> Kontakt Einfahrt Spur 3
+      IF NOT Sport.CTS THEN KontaktAusfahrt(3, iZeit)                     ' Kontakt Ausfahrt Spur 3? --->
+      IF Sport.RNG THEN KontaktEinfahrt(4, iZeit)                         ' ---> Kontakt Einfahrt Spur 4
+      IF NOT Sport.RNG THEN KontaktAusfahrt(4, iZeit)                     ' Kontakt Ausfahrt Spur 4? --->
+    ENDIF
+    WAIT 0.001                                                            ' 0,001 Sekunden für Ereignisse warten
+  UNTIL iRennen = 0 OR iSpurenOK = iSpuren * iRunden                      ' verlassen bei Abbrechen oder alle Spuren OK
+END
+
+PUBLIC SUB KontaktEinfahrt(iX AS Integer, iEinfahrtZeit AS Integer)       ' ---> Kontakt Einfahrt Spur X?
+  iaSpur[iX, 9] = iEinfahrtZeit + 100                                     ' aktuelle Fahrzeit + Entprellzeit
+  iaSpur[iX, 10] = 1                                                      ' Kontakttest auf 1
+END
+
+PUBLIC SUB KontaktAusfahrt(iX AS Integer, iAusfahrtZeit AS Integer)       ' Kontakt Ausfahrt Spur X? --->
+  IF iaSpur[iX, 10] = 1 AND iAusfahrtZeit > iaSpur[iX, 9] THEN            ' Kontakt und Zeit testen
+    IF iaSpur[iX, 8] <> 0 AND iaSpur[iX, 5] < iRunden THEN                ' Startdurchfahrt und größer Anzahl Runden nicht zählen
+      iaSpur[iX, 10] = 0                                                  ' Kontakttest auf 0
+      INC iaSpur[iX, 5]                                                   ' Runde um 1 erhöhen
+      INC iSpurenOK                                                       ' Spuren OK um 1 erhöhen
+      iaSpur[iX, 6] = iAusfahrtZeit - 100 - iaSpur[iX, iX]                ' letzte Runde berechnen
+      iaSpur[iX, iX] = iAusfahrtZeit - 100                                ' Fahrzeit Spur X merken
+      IF iaSpur[iX, 6] < iaSpur[iX, 7] THEN                               ' eine neue beste Runde?
+        iaSpur[iX, 7] = iaSpur[iX, 6]                                     ' beste Runde merken
+        MusikAbspielen("hupton.wav")                                      ' Musikdatei abspielen
+      ENDIF
+      iaSpur[iX, 0] = iaSpur[iX, 1] + iaSpur[iX, 2] + iaSpur[iX, 3] + iaSpur[iX, 4]   ' Fahrzeit gesamt merken (ohne Strafzeit)
+      iaSpur[iX, 11] = (iaSpur[iX, 0] + iaSpur[iX, 12] * 1000) / (iRunden * iSpuren)  ' mittlere Zeit berechnen (mit Strafzeit)
+      AnzeigeAktualisieren()                                              ' Daten anzeigen
+    ENDIF
+    iaSpur[iX, 8] = 1                                                     ' Startdurchfahrt absolviert
+  ENDIF
+END
+
+'----------------------------------------------------------------------------------------------------------------------------------
+' >>> Einstellungen für einen Start
+'----------------------------------------------------------------------------------------------------------------------------------
+
+PUBLIC SUB StartEinstellungen(iVon AS Integer, iBis AS Integer)           ' Einstellungen für einen Start
+  DIM iZahl AS Integer                                                    ' Zähler für die Daten
+  FOR iZahl = iVon TO iBis                                                ' Spur[X, Y) Daten auf 0 setzen
+    iaSpur[1, iZahl] = 0                                                  ' Spur 1 auf 0 setzen
+    IF iZahl = 7 THEN iaSpur[1, 7] = 3600000                              ' 3600000 sonst gibt es keine beste Runde
+    iaSpur[2, iZahl] = 0                                                  ' Spur 2 auf 0 setzen
+    IF iZahl = 7 THEN iaSpur[2, 7] = 3600000                              ' 3600000 sonst gibt es keine beste Runde
+    iaSpur[3, iZahl] = 0                                                  ' Spur 3 auf 0 setzen
+    IF iZahl = 7 THEN iaSpur[3, 7] = 3600000                              ' 3600000 sonst gibt es keine beste Runde
+    iaSpur[4, iZahl] = 0                                                  ' Spur 4 auf 0 setzen
+    IF iZahl = 7 THEN iaSpur[4, 7] = 3600000                              ' 3600000 sonst gibt es keine beste Runde
+  NEXT
+END
+
+'----------------------------------------------------------------------------------------------------------------------------------
+' >>> Spurwechsel beim Rennen
+'----------------------------------------------------------------------------------------------------------------------------------
+
+PUBLIC SUB Spurwechsel()                                                  ' Spurwechsel durchführen
+  DIM iSW AS Integer                                                      ' Zähler für die Schleifen
+  IF SPort.Status = Net.Active THEN SPort.RTS = TRUE                      ' DTR (7) Ampel einschalten
+  FOR iSW = 0 TO 12                                                       ' Spurdaten um 1 nach rechts übertragen
+    iaSpur[0, iSW] = iaSpur[4, iSW]                                       ' Spur 4 nach 0 (Dummie)
+    iaSpur[4, iSW] = iaSpur[3, iSW]                                       ' Spur 3 nach 4
+    iaSpur[3, iSW] = iaSpur[2, iSW]                                       ' Spur 2 nach 3
+    iaSpur[2, iSW] = iaSpur[1, iSW]                                       ' Spur 1 nach 2
+    IF iSpuren = 2 THEN                                                   ' wenn 2 Spuren
+      iaSpur[1, iSW] = iaSpur[3, iSW]                                     ' Spur 3 nach 1
+    ELSE                                                                  ' wenn 4 Spuren
+      iaSpur[1, iSW] = iaSpur[0, iSW]                                     ' Spur 0 (Dummie) nach 1
+    ENDIF
+  NEXT
+  FOR iSW = 1 TO 2                                                        ' Fahrer & Fahrzeug um 1 nach rechts übertragen
+    saFahrerFahrzeug[0, iSW] = saFahrerFahrzeug[4, iSW]                   ' Fahrer/Fahrzeug 4 nach 0 (Dummie)
+    saFahrerFahrzeug[4, iSW] = saFahrerFahrzeug[3, iSW]                   ' Fahrer/Fahrzeug 3 nach 4
+    saFahrerFahrzeug[3, iSW] = saFahrerFahrzeug[2, iSW]                   ' Fahrer/Fahrzeug 2 nach 3
+    saFahrerFahrzeug[2, iSW] = saFahrerFahrzeug[1, iSW]                   ' Fahrer/Fahrzeug 1 nach 2
+    IF iSpuren = 2 THEN                                                   ' wenn 2 Spuren
+      saFahrerFahrzeug[1, iSW] = saFahrerFahrzeug[3, iSW]                 ' Fahrer/Fahrzeug 3 nach 1
+    ELSE                                                                  ' wenn 4 Spuren
+      saFahrerFahrzeug[1, iSW] = saFahrerFahrzeug[0, iSW]                 ' Fahrer/Fahrzeug 0 (Dummie) nach 1
+    ENDIF
+  NEXT
+  MusikAbspielen("bremsen.wav")                                           ' Musikdatei abspielen
+  FSpurwechsel.Form_Open()                                                ' Spurwechsel Dialog aufrufen
+END
+
+'----------------------------------------------------------------------------------------------------------------------------------
+' >>> Rennen beendet
+'----------------------------------------------------------------------------------------------------------------------------------
+
+PUBLIC SUB RennenBeendet()                                                ' Rennen beendet, Gewinner ermitteln/speichern/anzeigen
+  DIM sDatei AS String                                                    ' Pfad & Name
+  DIM hDatei AS File                                                      ' Handle der Datei
+  DIM iZahl AS Integer                                                    ' Zähler für die Schleife
+  DIM iDumm AS Integer                                                    ' für den Gewinner
+  IF SPort.Status = Net.Active THEN SPort.RTS = TRUE                      ' DTR (7) Ampel einschalten
+  FOR iZahl = 0 TO iLAnzahl - 1                                           ' erst alle auf 0 setzen für keine Neuen Einträge
+    saListe[iZahl] = "0" & Right$(saListe[iZahl], Len(saListe[iZahl]) - 1)
+  NEXT
+  saListe[iLAnzahl - 1] = "1, ," & saFahrerFahrzeug[1, 1] & "," & saFahrerFahrzeug[1, 2] & "," & Replace$(Right$(ZeitUmwandeln(iaSpur[1, 11]), 6), ",", ":")
+  saListe[iLAnzahl - 2] = "2, ," & saFahrerFahrzeug[2, 1] & "," & saFahrerFahrzeug[2, 2] & "," & Replace$(Right$(ZeitUmwandeln(iaSpur[2, 11]), 6), ",", ":")
+  saListe[iLAnzahl - 3] = "0, ,Naubaddi Niemand,Raketopet 3000,59:998"
+  saListe[iLAnzahl - 4] = "0, ,Naubaddi Niemand,Raketopet 3000,59:990"
+  IF iSpuren = 4 THEN
+    saListe[iLAnzahl - 3] = "3, ," & saFahrerFahrzeug[3, 1] & "," & saFahrerFahrzeug[3, 2] & "," & Replace$(Right$(ZeitUmwandeln(iaSpur[3, 11]), 6), ",", ":")
+    saListe[iLAnzahl - 4] = "4, ," & saFahrerFahrzeug[4, 1] & "," & saFahrerFahrzeug[4, 2] & "," & Replace$(Right$(ZeitUmwandeln(iaSpur[4, 11]), 6), ",", ":")
+  ENDIF
+  BestenlisteSortieren(iLAnzahl - 4)                                      ' die Neuen in der Bestenliste sortieren
+  iDumm = Val(Left$(saListe[iLAnzahl - 4], 1))                            ' Gewinner übernehmen
+  sDatei = sInitPfad & "/Gewinner.info"                                   ' Pfad & Name der Gewinnerdatei
+  hDatei = OPEN sDatei FOR CREATE                                         ' Datei erstellen/überschreiben
+    PRINT #hDatei, Application.Name & " - Gewinner Info"                  ' Name des Programms und Funktion der Datei
+    PRINT #hDatei, ""                                                     ' leere Zeile
+    PRINT #hDatei, "Fahrer=" & saFahrerFahrzeug[iDumm, 1]                 ' Fahrer X
+    PRINT #hDatei, "Fahrzeug=" & saFahrerFahrzeug[iDumm, 2]               ' Fahrzeug X
+    PRINT #hDatei, "mittlere Rundenzeit=" & Replace$(Right$(ZeitUmwandeln(iaSpur[iDumm, 11]), 6), ",", ":")
+  CLOSE #hDatei                                                           ' Datei schließen
+  BestenlisteSortieren(0)                                                 ' Bestenliste sortieren
+  BestenlisteSpeichern()                                                  ' Bestenliste speichern
+  MusikAbspielen("applaus.wav")                                           ' Musikdatei abspielen
+  FRennenBeendet.Form_Open()                                              ' Rennen beendet Dialog aufrufen und Gewinner anzeigen
+END
+
+'----------------------------------------------------------------------------------------------------------------------------------
+' >>> Zeit umwandeln für die Anzeige
+'----------------------------------------------------------------------------------------------------------------------------------
+
+PUBLIC FUNCTION ZeitUmwandeln(iZahl AS Integer) AS String                 ' Zeit umwandeln
+  DIM sZeit AS String                                                     ' die Zeit als Text
+  DIM iZeit AS Integer                                                    ' die Zeit als Zahl
+  DIM iHH AS Integer                                                      ' Stunden
+  DIM iMM AS Integer                                                      ' Minuten
+  DIM iSS AS Integer                                                      ' Sekunden
+  DIM iTTT AS Integer                                                     ' Tausendstel
+  iZeit = Int(iZahl / 1000)                                               ' die gesamte Zeit in Sekunden
+  iHH = Int(iZeit / 3600)                                                 ' Stunden
+  iMM = Int((iZeit MOD 3600) / 60)                                        ' Minuten
+  iSS = iZeit - iMM * 60 - iHH * 3600                                     ' Sekunden
+  iTTT = iZahl - iZeit * 1000                                             ' Tausendstel
+  sZeit = Format$(iHH, "00") & ":" & Format$(iMM, "00") & "." & Format$(iSS, "00") & "," & Format$(iTTT, "000")
+  RETURN sZeit                                                            ' Zeit als String-Variable zurückgeben
+END
+
+'----------------------------------------------------------------------------------------------------------------------------------
+' >>> Anzeige aktuallisieren
+'----------------------------------------------------------------------------------------------------------------------------------
+
+PUBLIC SUB AnzeigeAktualisieren()                                         ' Daten aller Spuren anzeigen
+  txtFahrerSpur1.Text = saFahrerFahrzeug[1, 1]                            ' Fahrer Spur 1 anzeigen
+  txtFahrzeugSpur1.Text = saFahrerFahrzeug[1, 2]                          ' Fahrzeug Spur 1 anzeigen
+  lblStrafzeitSpur1.Text = Right$(ZeitUmwandeln(iaSpur[1, 12] * 1000), 6) ' Strafzeit Spur 1 anzeigen
+  lblRundeSpur1.Text = iaSpur[1, 5]                                       ' Spur 1 Runde anzeigen
+  lblLetzteRundeSpur1.Text = Right$(ZeitUmwandeln(iaSpur[1, 6]), 9)       ' letzte Runde anzeigen
+  lblBesteRundeSpur1.Text = Right$(ZeitUmwandeln(iaSpur[1, 7]), 9)        ' beste Runde anzeigen
+  lblFahrzeitSpur1.Text = ZeitUmwandeln(iaSpur[1, 0])                     ' Fahrzeit gesamt anzeigen
+  lblSpur1Spur1.Text = ZeitUmwandeln(iaSpur[1, 1])                        ' Fahrzeit Spur 1 anzeigen
+  lblSpur1Spur2.Text = ZeitUmwandeln(iaSpur[1, 2])                        ' Fahrzeit Spur 2 anzeigen
+  lblSpur1Spur3.Text = ZeitUmwandeln(iaSpur[1, 3])                        ' Fahrzeit Spur 3 anzeigen
+  lblSpur1Spur4.Text = ZeitUmwandeln(iaSpur[1, 4])                        ' Fahrzeit Spur 4 anzeigen
+  txtFahrerSpur2.Text = saFahrerFahrzeug[2, 1]                            ' Fahrer Spur 2 anzeigen
+  txtFahrzeugSpur2.Text = saFahrerFahrzeug[2, 2]                          ' Fahrzeug Spur 2 anzeigen
+  lblStrafzeitSpur2.Text = Right$(ZeitUmwandeln(iaSpur[2, 12] * 1000), 6) ' Strafzeit Spur 2 anzeigen
+  lblRundeSpur2.Text = iaSpur[2, 5]                                       ' Spur 2 Runde anzeigen
+  lblLetzteRundeSpur2.Text = Right$(ZeitUmwandeln(iaSpur[2, 6]), 9)       ' letzte Runde anzeigen
+  lblBesteRundeSpur2.Text = Right$(ZeitUmwandeln(iaSpur[2, 7]), 9)        ' beste Runde anzeigen
+  lblFahrzeitSpur2.Text = ZeitUmwandeln(iaSpur[2, 0])                     ' Fahrzeit gesamt anzeigen
+  lblSpur2Spur1.Text = ZeitUmwandeln(iaSpur[2, 1])                        ' Fahrzeit Spur 1 anzeigen
+  lblSpur2Spur2.Text = ZeitUmwandeln(iaSpur[2, 2])                        ' Fahrzeit Spur 2 anzeigen
+  lblSpur2Spur3.Text = ZeitUmwandeln(iaSpur[2, 3])                        ' Fahrzeit Spur 3 anzeigen
+  lblSpur2Spur4.Text = ZeitUmwandeln(iaSpur[2, 4])                        ' Fahrzeit Spur 4 anzeigen
+  txtFahrerSpur3.Text = saFahrerFahrzeug[3, 1]                            ' Fahrer Spur 3 anzeigen
+  txtFahrzeugSpur3.Text = saFahrerFahrzeug[3, 2]                          ' Fahrzeug Spur 3 anzeigen
+  lblStrafzeitSpur3.Text = Right$(ZeitUmwandeln(iaSpur[3, 12] * 1000), 6) ' Strafzeit Spur 3 anzeigen
+  lblRundeSpur3.Text = iaSpur[3, 5]                                       ' Spur 3 Runde anzeigen
+  lblLetzteRundeSpur3.Text = Right$(ZeitUmwandeln(iaSpur[3, 6]), 9)       ' letzte Runde anzeigen
+  lblBesteRundeSpur3.Text = Right$(ZeitUmwandeln(iaSpur[3, 7]), 9)        ' beste Runde anzeigen
+  lblFahrzeitSpur3.Text = ZeitUmwandeln(iaSpur[3, 0])                     ' Fahrzeit gesamt anzeigen
+  lblSpur3Spur1.Text = ZeitUmwandeln(iaSpur[3, 1])                        ' Fahrzeit Spur 1 anzeigen
+  lblSpur3Spur2.Text = ZeitUmwandeln(iaSpur[3, 2])                        ' Fahrzeit Spur 2 anzeigen
+  lblSpur3Spur3.Text = ZeitUmwandeln(iaSpur[3, 3])                        ' Fahrzeit Spur 3 anzeigen
+  lblSpur3Spur4.Text = ZeitUmwandeln(iaSpur[3, 4])                        ' Fahrzeit Spur 4 anzeigen
+  txtFahrerSpur4.Text = saFahrerFahrzeug[4, 1]                            ' Fahrer Spur 4 anzeigen
+  txtFahrzeugSpur4.Text = saFahrerFahrzeug[4, 2]                          ' Fahrzeug Spur 4 anzeigen
+  lblStrafzeitSpur4.Text = Right$(ZeitUmwandeln(iaSpur[4, 12] * 1000), 6) ' Strafzeit Spur 4 anzeigen
+  lblRundeSpur4.Text = iaSpur[4, 5]                                       ' Spur 4 Runde anzeigen
+  lblLetzteRundeSpur4.Text = Right$(ZeitUmwandeln(iaSpur[4, 6]), 9)       ' letzte Runde anzeigen
+  lblBesteRundeSpur4.Text = Right$(ZeitUmwandeln(iaSpur[4, 7]), 9)        ' beste Runde anzeigen
+  lblFahrzeitSpur4.Text = ZeitUmwandeln(iaSpur[4, 0])                     ' Fahrzeit gesamt anzeigen
+  lblSpur4Spur1.Text = ZeitUmwandeln(iaSpur[4, 1])                        ' Fahrzeit Spur 1 anzeigen
+  lblSpur4Spur2.Text = ZeitUmwandeln(iaSpur[4, 2])                        ' Fahrzeit Spur 2 anzeigen
+  lblSpur4Spur3.Text = ZeitUmwandeln(iaSpur[4, 3])                        ' Fahrzeit Spur 3 anzeigen
+  lblSpur4Spur4.Text = ZeitUmwandeln(iaSpur[4, 4])                        ' Fahrzeit Spur 4 anzeigen
+END
+
+'----------------------------------------------------------------------------------------------------------------------------------
+' >>> Menüeinträge ein/aus schalten
+'----------------------------------------------------------------------------------------------------------------------------------
+
+PUBLIC SUB MenuEinAus(bEinAus AS Boolean)                                 ' Menü-Einträge ein oder aus schalten
+  mnuNeu.Enabled = bEinAus
+  mnuLaden.Enabled = bEinAus
+  mnuSpeichern.Enabled = bEinAus
+  mnuBeenden.Enabled = bEinAus
+  mnuStarten.Enabled = bEinAus
+  mnuStarten.Checked = NOT bEinAus
+  mnuAbbrechen.Enabled = NOT bEinAus
+  mnuBestenliste.Enabled = bEinAus
+  mnuTonausgabe.Enabled = bEinAus
+  mnuVierSpuren.Enabled = bEinAus
+  mnuPortEinstellungen.Enabled = bEinAus
+  mnuHilfe.Enabled = bEinAus
+  mnuBauplan.Enabled = bEinAus
+  mnuInfo.Enabled = bEinAus
+END
+
+'----------------------------------------------------------------------------------------------------------------------------------
+' >>> Port ein/aus schalten
+'----------------------------------------------------------------------------------------------------------------------------------
+
+PUBLIC FUNCTION SPortEin() AS Boolean                                     ' Port öffnen
+  DIM bPortOK AS Boolean = FALSE                                          ' Port öffnen OK?
+  IF SPort.Status = Net.Inactive THEN                                     ' wenn der Port geschloßen ist
+    SPort.OPEN()                                                          ' Port öffnen
+    IF NOT SPort.DTR THEN SPort.DTR = TRUE                                ' DTR (4) einschalten (Kontakt)
+    IF SPort.RTS THEN SPort.RTS = FALSE                                   ' RTS (7) ausschalten (Ampel)
+    bPortOK = TRUE                                                        ' der Port ist OK
+  ENDIF
+  RETURN bPortOK                                                          ' Port ist OK zurückgeben
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+PUBLIC SUB SPortAus()                                                     ' Port schließen
+  IF SPort.Status = Net.Active THEN                                       ' wenn der Port offen ist
+    IF SPort.DTR THEN SPort.DTR = FALSE                                   ' DTR (4) ausschalten (Kontakt)
+    IF SPort.RTS THEN SPort.RTS = FALSE                                   ' RTS (7) ausschalten (Ampel)
+    SPort.CLOSE()                                                         ' Port schließen
+  ENDIF
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+'----------------------------------------------------------------------------------------------------------------------------------
+' >>> Musikdatei laden/abspielen
+'----------------------------------------------------------------------------------------------------------------------------------
+
+PUBLIC SUB MusikAbspielen(sMusikDatei AS String)                          ' Musikdatei abspielen?
+  DIM sDatei AS String                                                    ' Pfad & Name
+  sDatei = sDatenPfad & sTonOrdner & "/" & sMusikDatei                    ' Name der Musikdatei übernehmen
+PRINT sDatei
+  IF bTonausgabe THEN                                                     ' wenn die Tonausgabe eingeschaltet ist
+    IF Exist(sDatei) THEN Music.Load(sDatei)                              ' Wave-Datei laden
+    Music.Play                                                            ' Wave-Datei abspielen
+  ENDIF
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+'----------------------------------------------------------------------------------------------------------------------------------
+' >>> Texteingaben auf Zahlen und min./max. überwachen
+'----------------------------------------------------------------------------------------------------------------------------------
+
+PUBLIC SUB txtAnzahlRunden_Change()                                       ' die Anzahl der Runden wurde geändert
+  DIM iDumm AS Variant                                                    ' zum Testen ob es eine Ganzzahl ist
+  IF txtAnzahlRunden.Text <> "" THEN                                      ' erst wenn etwas eingegeben wurde kontrollieren
+    iDumm = Val(txtAnzahlRunden.Text)                                     ' den Text in eine eine Zahl umwandeln
+    IF IsInteger(iDumm) THEN                                              ' nur wenn es eine Ganzzahl ist korrigieren
+      IF iDumm < 1 THEN txtAnzahlRunden.Text = 1                          ' mindestens 2x eine Runde
+      IF iDumm > iMaxRunden THEN txtAnzahlRunden.Text = iMaxRunden        ' maximal 2x die vorgegebenen Runden
+    ELSE                                                                  ' es ist keine Ganzzahl
+      txtAnzahlRunden.Text = 22                                           ' 22 Runden vorgeben
+    ENDIF
+  ENDIF
+  IF txtAnzahlRunden.Text = "" THEN iRunden = 1                           ' wenn nichts eingegeben wurde, mindestens eine Runde
+  IF txtAnzahlRunden.Text <> "" THEN iRunden = Val(txtAnzahlRunden.Text)  ' Anzahl Runden übernehmen
+END
+
+PUBLIC SUB txtLaengeSpur1_Change()                                        ' die Länge der Spur 1 wurde geändert
+  DIM iDumm AS Variant                                                    ' zum Testen ob es eine Ganzzahl ist
+  IF txtLaengeSpur1.Text <> "" THEN                                       ' erst wenn etwas eingegeben wurde kontrollieren
+    iDumm = Val(txtLaengeSpur1.Text)                                      ' den Text in eine eine Zahl umwandeln
+    IF IsInteger(iDumm) THEN                                              ' nur wenn es eine Ganzzahl ist korrigieren
+      IF iDumm < 1 THEN txtLaengeSpur1.Text = 1                           ' mindestens 1cm
+      IF iDumm > 9999 THEN txtLaengeSpur1.Text = 9999                     ' maximal 9999cm
+      txtLaengeSpur2.Text = iDumm                                         ' bei Änderung der Spurlänge Spur 1 auch Spur 2 ändern
+      txtLaengeSpur3.Text = iDumm                                         ' bei Änderung der Spurlänge Spur 1 auch Spur 3 ändern
+      txtLaengeSpur4.Text = iDumm                                         ' bei Änderung der Spurlänge Spur 1 auch Spur 4 ändern
+    ELSE                                                                  ' es ist keine Ganzzahl
+      txtLaengeSpur1.Text = 1934                                          ' 1934cm vorgeben
+    ENDIF
+  ENDIF
+END
+
+PUBLIC SUB txtLaengeSpur2_Change()                                        ' die Länge der Spur 2 wurde geändert
+  DIM iDumm AS Variant                                                    ' zum Testen ob es eine Ganzzahl ist
+  IF txtLaengeSpur2.Text <> "" THEN                                       ' erst wenn etwas eingegeben wurde kontrollieren
+    iDumm = Val(txtLaengeSpur2.Text)                                      ' den Text in eine eine Zahl umwandeln
+    IF IsInteger(iDumm) THEN                                              ' nur wenn es eine Ganzzahl ist korrigieren
+      IF iDumm < 1 THEN txtLaengeSpur2.Text = 1                           ' mindestens 1cm
+      IF iDumm > 9999 THEN txtLaengeSpur2.Text = 9999                     ' maximal 9999cm
+    ELSE                                                                  ' es ist keine Ganzzahl
+      txtLaengeSpur2.Text = 1934                                          ' 1934cm vorgeben
+    ENDIF
+  ENDIF
+END
+
+PUBLIC SUB txtLaengeSpur3_Change()                                        ' die Länge der Spur 3 wurde geändert
+  DIM iDumm AS Variant                                                    ' zum Testen ob es eine Ganzzahl ist
+  IF txtLaengeSpur3.Text <> "" THEN                                       ' erst wenn etwas eingegeben wurde kontrollieren
+    iDumm = Val(txtLaengeSpur3.Text)                                      ' den Text in eine eine Zahl umwandeln
+    IF IsInteger(iDumm) THEN                                              ' nur wenn es eine Ganzzahl ist korrigieren
+      IF iDumm < 1 THEN txtLaengeSpur3.Text = 1                           ' mindestens 1cm
+      IF iDumm > 9999 THEN txtLaengeSpur3.Text = 9999                     ' maximal 9999cm
+    ELSE                                                                  ' es ist keine Ganzzahl
+      txtLaengeSpur3.Text = 1934                                          ' 1934cm vorgeben
+    ENDIF
+  ENDIF
+END
+
+PUBLIC SUB txtLaengeSpur4_Change()                                        ' die Länge der Spur 4 wurde geändert
+  DIM iDumm AS Variant                                                    ' zum Testen ob es eine Ganzzahl ist
+  IF txtLaengeSpur4.Text <> "" THEN                                       ' erst wenn etwas eingegeben wurde kontrollieren
+    iDumm = Val(txtLaengeSpur4.Text)                                      ' den Text in eine eine Zahl umwandeln
+    IF IsInteger(iDumm) THEN                                              ' nur wenn es eine Ganzzahl ist korrigieren
+      IF iDumm < 1 THEN txtLaengeSpur4.Text = 1                           ' mindestens 1cm
+      IF iDumm > 9999 THEN txtLaengeSpur4.Text = 9999                     ' maximal 9999cm
+    ELSE                                                                  ' es ist keine Ganzzahl
+      txtLaengeSpur4.Text = 1934                                          ' 1934cm vorgeben
+    ENDIF
+  ENDIF
+END
+
+'----------------------------------------------------------------------------------------------------------------------------------
+' >>> Programm Einstellunge erstellen, speichern, laden
+'----------------------------------------------------------------------------------------------------------------------------------
+
+PUBLIC SUB EinstellungenErstellen()                                       ' Einstellungen erstellen
+  ME.X = 66                                                               ' Fenster Position X
+  ME.Y = 44                                                               ' Fenster Position Y
+  bTonausgabe = TRUE                                                      ' Tonausgabe einschalten
+  iSpuren = 2                                                             ' 2 Spuren einstellen
+  sStrecke = sInitPfad & "/Standard"                                      ' Pfad & Name für Strecke, Bestenliste und Hintergrund
+END
+
+PUBLIC SUB EinstellungenSpeichern()                                       ' Einstellungen speichern
+  DIM sDatei AS String                                                    ' Pfad & Name
+  DIM hDatei AS File                                                      ' Handle der Datei
+  sDatei = sInitPfad & "/" & Application.Name & ".init"                   ' Pfad & Name der Initdatei
+  hDatei = OPEN sDatei FOR CREATE                                         ' Datei erstellen/überschreiben
+    PRINT #hDatei, Application.Name & " - Einstellungen"                  ' Name des Programms und Funktion der Datei
+    PRINT #hDatei, ""                                                     ' leere Zeile
+    PRINT #hDatei, "Fenster Position X=" & ME.X                           ' Fenster Position X
+    PRINT #hDatei, "Fenster Position Y=" & ME.Y                           ' Fenster Position Y
+    PRINT #hDatei, ""                                                     ' leere Zeile
+    PRINT #hDatei, "Tonausgabe=" & Str$(bTonausgabe)                      ' mit Tonausgabe?
+    PRINT #hDatei, "Anzahl Spuren=" & iSpuren                             ' Anzahl Spuren
+    PRINT #hDatei, ""                                                     ' leere Zeile
+    PRINT #hDatei, "Strecke=" & sStrecke                                  ' Pfad & Name für Strecke, Bestenliste und Hintergrund
+  CLOSE #hDatei                                                           ' Datei schließen
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+PUBLIC SUB EinstellungenLaden()                                           ' Einstellungen laden
+  DIM sDatei AS String                                                    ' Pfad & Name
+  DIM hDatei AS File                                                      ' Handle der Datei
+  DIM sZeile AS String                                                    ' eine Zeile
+  sDatei = sInitPfad & "/" & Application.Name & ".init"                   ' Pfad & Name der Initdatei
+  IF Exist(sDatei) THEN                                                   ' wenn die Datei existiert
+    OPEN sDatei FOR READ AS #hDatei                                       ' Datei öffnen
+      WHILE NOT Eof(hDatei)                                               ' bis zum Dateiende wiederholen
+        LINE INPUT #hDatei, sZeile                                        ' eine Zeile der Datei einlesen
+        IF InStr(sZeile, "Fenster Position X=") THEN ME.X = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Fenster Position Y=") THEN ME.Y = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Tonausgabe=") THEN bTonausgabe = Val(Right$(sZeile, Len(sZeile) - InStr(sZeile, "=")))
+        IF InStr(sZeile, "Anzahl Spuren=") THEN iSpuren = Val(Right$(sZeile, Len(sZeile) - InStr(sZeile, "=")))
+        IF InStr(sZeile, "Strecke=") THEN sStrecke = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+      WEND
+    CLOSE #hDatei                                                         ' Datei schließen
+  ENDIF
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+PUBLIC SUB StreckeErstellen()                                             ' Strecke erstellen
+  DIM sDatei AS String = sDatenPfad & sBilderOrdner & "/Hintergrund.jpg"  ' Pfad & Name vom Hintergrundbild
+  SHELL "cp '" & sDatei & "' '" & sInitPfad & "/Standard.jpg'" WAIT       ' Hintergrundbild zum versteckten Ordner kopieren
+  IF Exist(sDatei) THEN imgHintergrund.Picture = Picture[sDatei]          ' Hintergrund laden
+  txtStrecke.Text = "Standard"                                            ' Name der Strecke
+  iRunden = 22                                                            ' Anzahl Runden
+  txtLaengeSpur1.Text = "1984"                                            ' Länge Spur 1
+  saFahrerFahrzeug[1, 1] = "Hermann Friedhoff"                            ' Fahrer Spur 1
+  saFahrerFahrzeug[1, 2] = "BMW V12 (DELL)"                               ' Fahrzeug Spur 1
+  txtLaengeSpur2.Text = "1984"                                            ' Länge Spur 2
+  saFahrerFahrzeug[2, 1] = "Kirsten Friedhoff"                            ' Fahrer Spur 2
+  saFahrerFahrzeug[2, 2] = "Audi R8 (Gulf)"                               ' Fahrzeug Spur 2
+  txtLaengeSpur3.Text = "1984"                                            ' Länge Spur 3
+  saFahrerFahrzeug[3, 1] = "Manuela Witzke"                               ' Fahrer Spur 3
+  saFahrerFahrzeug[3, 2] = "Panoz Esperante GTR-1"                        ' Fahrzeug Spur 3
+  txtLaengeSpur4.Text = "1984"                                            ' Länge Spur 4
+  saFahrerFahrzeug[4, 1] = "Daniela Krischker"                            ' Fahrer Spur 4
+  saFahrerFahrzeug[4, 2] = "Porsche GT1 Evo"                              ' Fahrzeug Spur 4
+  sStrecke = sInitPfad & "/Standard"                                      ' Pfad & Name für Strecke, Bestenliste und Hintergrund
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+PUBLIC SUB StreckeSpeichern()                                             ' Strecken speichern
+  DIM sDatei AS String                                                    ' Pfad & Name
+  DIM hDatei AS File                                                      ' Handle der Datei
+  DIM sZeile AS String                                                    ' eine Zeile
+  sDatei = sStrecke & ".strecke"                                          ' Pfad & Name der Streckendatei
+  hDatei = OPEN sDatei FOR CREATE                                         ' Datei erstellen/überschreiben
+    PRINT #hDatei, Application.Name & " - Strecken Einstellungen"         ' Name des Programms und Funktion der Datei
+    PRINT #hDatei, ""                                                     ' leere Zeile
+    PRINT #hDatei, "Streckenname=" & txtStrecke.Text                      ' Name der Strecke
+    PRINT #hDatei, "Anzahl Spuren=" & iSpuren                             ' Anzahl Spuren
+    PRINT #hDatei, "Anzahl Runden Xx=" & iRunden                          ' Anzahl Runden
+    PRINT #hDatei, ""                                                     ' leere Zeile
+    PRINT #hDatei, "Länge Spur 1=" & txtLaengeSpur1.Text                  ' Länge Spur 1
+    PRINT #hDatei, "Fahrer Spur 1=" & saFahrerFahrzeug[1, 1]              ' Fahrer Spur 1
+    PRINT #hDatei, "Fahrzeug Spur 1=" & saFahrerFahrzeug[1, 2]            ' Fahrzeug Spur 1
+    PRINT #hDatei, ""                                                     ' leere Zeile
+    PRINT #hDatei, "Länge Spur 2=" & txtLaengeSpur2.Text                  ' Länge Spur 2
+    PRINT #hDatei, "Fahrer Spur 2=" & saFahrerFahrzeug[2, 1]              ' Fahrer Spur 2
+    PRINT #hDatei, "Fahrzeug Spur 2=" & saFahrerFahrzeug[2, 2]            ' Fahrzeug Spur 2
+    PRINT #hDatei, ""                                                     ' leere Zeile
+    PRINT #hDatei, "Länge Spur 3=" & txtLaengeSpur3.Text                  ' Länge Spur 3
+    PRINT #hDatei, "Fahrer Spur 3=" & saFahrerFahrzeug[3, 1]              ' Fahrer Spur 3
+    PRINT #hDatei, "Fahrzeug Spur 3=" & saFahrerFahrzeug[3, 2]            ' Fahrzeug Spur 3
+    PRINT #hDatei, ""                                                     ' leere Zeile
+    PRINT #hDatei, "Länge Spur 4=" & txtLaengeSpur4.Text                  ' Länge Spur 4
+    PRINT #hDatei, "Fahrer Spur 4=" & saFahrerFahrzeug[4, 1]              ' Fahrer Spur 4
+    PRINT #hDatei, "Fahrzeug Spur 4=" & saFahrerFahrzeug[4, 2]            ' Fahrzeug Spur 4
+    PRINT #hDatei, ""                                                     ' leere Zeile
+    PRINT #hDatei, "Strecke=" & sStrecke                                  ' Pfad & Name der Strecken-Datei
+  CLOSE #hDatei                                                           ' Datei schließen
+  FMain.Text = txtStrecke.Text & " - Formel-X"                            ' neuer Titel für das Programm
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+PUBLIC SUB StreckeLaden()                                                 ' Strecke laden
+  DIM sDatei AS String                                                    ' Pfad & Name
+  DIM sZiel AS String                                                     ' Pfad & Name vom versteckten Ordner
+  DIM hDatei AS File                                                      ' Handle der Datei
+  DIM sZeile AS String                                                    ' eine Zeile
+  sDatei = sStrecke & ".strecke"                                          ' Pfad & Name der Streckendatei
+  IF Exist(sDatei) THEN                                                   ' wenn die Datei existiert
+    OPEN sDatei FOR READ AS #hDatei                                       ' Datei öffnen
+      WHILE NOT Eof(hDatei)                                               ' bis zum Dateiende wiederholen
+        LINE INPUT #hDatei, sZeile                                        ' eine Zeile der Datei einlesen
+        IF InStr(sZeile, "Streckenname=") THEN txtStrecke.Text = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Anzahl Spuren=") THEN iSpuren = Val(Right$(sZeile, Len(sZeile) - InStr(sZeile, "=")))
+        IF InStr(sZeile, "Anzahl Runden Xx=") THEN iRunden = Val(Right$(sZeile, Len(sZeile) - InStr(sZeile, "=")))
+        IF InStr(sZeile, "Länge Spur 1=") THEN txtLaengeSpur1.Text = Val(Right$(sZeile, Len(sZeile) - InStr(sZeile, "=")))
+        IF InStr(sZeile, "Fahrer Spur 1=") THEN saFahrerFahrzeug[1, 1] = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Fahrzeug Spur 1=") THEN saFahrerFahrzeug[1, 2] = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Länge Spur 2=") THEN txtLaengeSpur2.Text = Val(Right$(sZeile, Len(sZeile) - InStr(sZeile, "=")))
+        IF InStr(sZeile, "Fahrer Spur 2=") THEN saFahrerFahrzeug[2, 1] = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Fahrzeug Spur 2=") THEN saFahrerFahrzeug[2, 2] = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Länge Spur 3=") THEN txtLaengeSpur3.Text = Val(Right$(sZeile, Len(sZeile) - InStr(sZeile, "=")))
+        IF InStr(sZeile, "Fahrer Spur 3=") THEN saFahrerFahrzeug[3, 1] = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Fahrzeug Spur 3=") THEN saFahrerFahrzeug[3, 2] = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Länge Spur 4=") THEN txtLaengeSpur4.Text = Val(Right$(sZeile, Len(sZeile) - InStr(sZeile, "=")))
+        IF InStr(sZeile, "Fahrer Spur 4=") THEN saFahrerFahrzeug[4, 1] = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Fahrzeug Spur 4=") THEN saFahrerFahrzeug[4, 2] = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Strecke=") THEN sStrecke = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+      WEND
+    CLOSE #hDatei                                                         ' Datei schließen
+  ENDIF
+  FMain.Text = txtStrecke.Text & " - Formel-X"                            ' neuer Titel für das Programm
+  sDatei = sStrecke & ".jpg"                                              ' Pfad & Name der Hintergrund-Datei
+  sZiel = sInitPfad & "/" & txtStrecke.Text & ".jpg"                      ' Pfad & Name vom versteckten Ordner
+  IF Exist(sDatei) THEN                                                   ' wenn eine Hintergrund-Datei existiert
+    imgHintergrund.Picture = Picture[sDatei]                              ' Hintergrund laden
+    IF sDatei <> sZiel THEN                                               ' ist die Hintergrund-Datei nicht im versteckten Ordner
+      SHELL "cp '" & sDatei & "' '" & sZiel & "'" WAIT                    ' Hintergrund-Datei zum versteckten Ordner kopieren
+    ENDIF
+  ENDIF
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+PUBLIC SUB BestenlisteErstellen()                                         ' Liste erstellen
+  DIM iZahl AS Integer                                                    ' Zähler für die Reihen
+  FOR iZahl = 0 TO iLAnzahl - 1                                           ' alle Reihen der Liste mit Standard Werten belegen
+    saListe[iZahl] = "0, ,Naubaddi Niemand,Raketopet 3000,59:" & (888 + iZahl)
+  NEXT
+END
+
+PUBLIC SUB BestenlisteSpeichern()                                         ' Liste in das csv Format konvertieren und speichern
+  DIM sDatei AS String                                                    ' Pfad & Name
+  DIM hDatei AS File                                                      ' Handle der Datei
+  DIM iZahl AS Integer                                                    ' Zähler für die Reihen
+  DIM sZeile AS String                                                    ' eine Zeile
+  sDatei = sStrecke & ".liste"                                            ' Pfad & Name für die Bestenliste
+  hDatei = OPEN sDatei FOR CREATE                                         ' Datei erstellen/überschreiben
+    FOR iZahl = 0 TO iLAnzahl - 1                                         ' Anzahl der Reihen die gespeichert werden
+      sZeile = (Chr(34) & Replace$(saListe[iZahl], ",", Chr(34) & "," & Chr(34)) & Chr(34))
+      PRINT #hDatei, sZeile                                               ' eine Reihe speichern
+    NEXT
+  CLOSE #hDatei                                                           ' Datei schließen
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+PUBLIC SUB BestenlisteLaden()                                             ' Liste laden
+  DIM sDatei AS String                                                    ' Pfad & Name
+  DIM hDatei AS File                                                      ' Handle der Datei
+  DIM sReihe AS String[]                                                  ' eine Reihe aus der Liste
+  DIM iReihe AS Integer = 0                                               ' Zähler für die Reihen
+  DIM sZeile AS String                                                    ' eine Zeile
+  sDatei = sStrecke & ".liste"                                            ' Pfad & Name für die Bestenliste
+  IF Exist(sDatei) THEN                                                   ' wenn eine Listendatei existiert
+    OPEN sDatei FOR READ AS #hDatei                                       ' Datei öffnen
+      WHILE NOT Eof(hDatei) AND iReihe < iLAnzahl                         ' bis zum Dateiende oder Anzahl Reihen wiederholen
+        LINE INPUT #hDatei, sZeile                                        ' eine Zeile der Datei einlesen
+        saListe[iReihe] = Replace$(sZeile, Chr(34), "")                   ' alle " aus der Zeile entferne
+        INC iReihe                                                        ' Reihe um 1 erhöhen
+      WEND
+    CLOSE #hDatei                                                         ' Datei schließen
+  ENDIF
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+PUBLIC SUB PortErstellen()                                                ' Port Einstellungen erstellen
+  SPort.PortName = "/dev/ttyUSB0"                                         ' Name vom Port
+  SPort.Speed = 19200                                                     ' Geschwindigkeit
+  SPort.DataBits = 8                                                      ' Datenbits
+  SPort.Parity = 0                                                        ' Parität
+  SPort.StopBits = 1                                                      ' Stoppbits
+  SPort.FlowControl = 0                                                   ' Datenfluss
+END
+
+PUBLIC SUB PortSpeichern()                                                ' Port Einstellungen speichern
+  DIM sDatei AS String                                                    ' Name
+  DIM hDatei AS File                                                      ' Handle der Datei
+  DIM sZeile AS String                                                    ' eine Zeile
+  sDatei = sInitPfad & "/Port.init"                                       ' Pfad & Name der Portinitdatei
+  hDatei = OPEN sDatei FOR CREATE                                         ' Datei erstellen/überschreiben
+    PRINT #hDatei, Application.Name & " - Port Einstellungen"             ' Name des Programms und Funktion der Initdatei
+    PRINT #hDatei, ""                                                     ' eine leere Zeile
+    PRINT #hDatei, "Port=" & SPort.PortName                               ' Portname
+    PRINT #hDatei, "Speed=" & SPort.Speed                                 ' Geschwindigkeit
+    PRINT #hDatei, "Data=" & SPort.DataBits                               ' Daten Bits
+    PRINT #hDatei, "Parity=" & SPort.Parity                               ' Parität
+    PRINT #hDatei, "Stop=" & SPort.StopBits                               ' Stopp Bits
+    PRINT #hDatei, "Flow=" & SPort.FlowControl                            ' Datenfluss
+  CLOSE #hDatei                                                           ' Datei schließen
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+PUBLIC SUB PortLaden()                                                    ' Port Einstellungen laden
+  DIM sDatei AS String                                                    ' Name
+  DIM hDatei AS File                                                      ' Handle der Datei
+  DIM sZeile AS String                                                    ' eine Zeile
+  sDatei = sInitPfad & "/Port.init"                                       ' Pfad & Name der Portinitdatei
+  IF Exist(sDatei) THEN                                                   ' wenn eine Datei existiert
+    OPEN sDatei FOR READ AS #hDatei                                       ' Datei öffnen zum lesen
+      WHILE NOT Eof(hDatei)                                               ' bis zum Dateiende wiederholen
+        LINE INPUT #hDatei, sZeile                                        ' eine Zeile der Potinitdatei einlesen
+        IF InStr(sZeile, "Port=") THEN SPort.PortName = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Speed=") THEN SPort.Speed = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Data=") THEN SPort.DataBits = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Parity=") THEN SPort.Parity = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Stop=") THEN SPort.StopBits = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Flow=") THEN SPort.FlowControl = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+      WEND
+    CLOSE #hDatei                                                         ' Datei schließen
+  ENDIF 
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+'----------------------------------------------------------------------------------------------------------------------------------
+' >>> Bestenliste sortieren
+'----------------------------------------------------------------------------------------------------------------------------------
+
+PUBLIC SUB BestenlisteSortieren(iVon AS Integer)                          ' die Liste aufsteigend sortieren (über die Zeit)
+  DIM iZahl AS Integer                                                    ' Zähler für die Reihen
+  DIM iPostenX AS Integer                                                 ' Posten X
+  DIM iPostenY AS Integer                                                 ' Posten Y (Posten X + 1) zum Vergleichen mit Posten X
+  DIM iFertig AS Integer                                                  ' 1 = fertig, 0 = noch nicht fertig
+  DIM sDumm AS String                                                     ' Zwischenspeicher zum wechseln der Posten von 2 Reihen
+  REPEAT                                                                  ' sortieren Schleife starten
+    iFertig = 1                                                           ' 1 = fertig, mindestens 1x durchlaufen
+    FOR iZahl = iVon TO iLAnzahl - 2                                      ' Reihen ab iVon vergleichen
+      iPostenX = Val(Right$(Replace$(saListe[iZahl], ":", ""), 5))        ' Posten X
+      iPostenY = Val(Right$(Replace$(saListe[iZahl + 1], ":", ""), 5))    ' Posten Y (Posten X + 1) zum Vergleichen mit Posten X
+      IF iPostenX > iPostenY THEN                                         ' wenn Posten X > Posten Y Reihe tauschen
+        sDumm = saListe[iZahl]                                            ' Posten X in den Zwischenspeicher
+        saListe[iZahl] = saListe[iZahl + 1]                               ' Posten Y in den Posten X
+        saListe[iZahl + 1] = sDumm                                        ' Zwischenspeicher in den Posten Y
+        iFertig = 0                                                       ' 0 = noch nicht fertig
+      ENDIF
+    NEXT
+  UNTIL iFertig = 1                                                       ' verlassen wenn die Liste sortiert ist
+END
+
+'----------------------------------------------------------------------------------------------------------------------------------
+' >>> Programm an die Anzahl der Spuren anpassen
+'----------------------------------------------------------------------------------------------------------------------------------
+
+PUBLIC SUB AnSpurenAnpassen(iSpurenX AS Integer)
+  IF iSpurenX = 2 THEN
+    ME.Width = 833
+    ME.Height = 651
+    imgHintergrund.Width = 840
+    imgHintergrund.Height = 630
+    txtStrecke.X = 168
+    lblSpuren.X = 322
+    txtAnzahlRunden.X = 364
+    lblRunden.X = 434
+    lblNr1.X = 231
+    txtLaengeSpur1.X = 266
+    lblLaenge1.X = 329
+    txtFahrerSpur1.X = 231
+    txtFahrzeugSpur1.X = 231
+    lblStrafzeit.X = 77
+    lblStrafzeitSpur1.X = 350
+    lblStrafzeitSpur2.X = 693
+    lblStrafzeitSpur3.X = 924
+    lblStrafzeitSpur4.X = 966
+    lblRundeSpur1.X = 385
+    lblLetzteRundeSpur1.X = 308
+    lblBesteRundeSpur1.X = 308
+    lblFahrzeitSpur1.X = 266
+    lblSpur1Spur1.X = 266
+    lblSpur1Spur2.X = 266
+    lblSpur1Spur3.X = 266
+    lblSpur1Spur4.X = 266
+    lblNr2.X = 574
+    txtLaengeSpur2.X = 609
+    lblLaenge2.X = 672
+    txtFahrerSpur2.X = 574
+    txtFahrzeugSpur2.X = 574
+    lblRundeSpur2.X = 728
+    lblLetzteRundeSpur2.X = 651
+    lblBesteRundeSpur2.X = 651
+    lblFahrzeitSpur2.X = 609
+    lblSpur2Spur1.X = 609
+    lblSpur2Spur2.X = 609
+    lblSpur2Spur3.X = 609
+    lblSpur2Spur4.X = 609
+    lblNr3.X = 847
+    txtLaengeSpur3.X = 882
+    lblLaenge3.X = 945
+    txtFahrerSpur3.X = 847
+    txtFahrzeugSpur3.X = 847
+    lblRundeSpur3.X = 1001
+    lblLetzteRundeSpur3.X = 889
+    lblBesteRundeSpur3.X = 889
+    lblFahrzeitSpur3.X = 847
+    lblSpur3Spur1.X = 847
+    lblSpur3Spur2.X = 847
+    lblSpur3Spur3.X = 847
+    lblSpur3Spur4.X = 847
+    lblSpur3.Visible = FALSE
+    lblSpur1Spur3.Visible = FALSE
+    lblSpur2Spur3.Visible = FALSE
+    lblSpur3Spur3.Visible = FALSE
+    txtLaengeSpur3.Enabled = FALSE
+    txtFahrerSpur3.Enabled = FALSE
+    txtFahrzeugSpur3.Enabled = FALSE
+    txtLaengeSpur4.Enabled = FALSE
+    txtFahrerSpur4.Enabled = FALSE
+    txtFahrzeugSpur4.Enabled = FALSE
+  ELSE
+    ME.Width = 1099
+    ME.Height = 770
+    imgHintergrund.Width = 1099
+    imgHintergrund.Height = 824
+    txtStrecke.X = 301
+    lblSpuren.X = 455
+    txtAnzahlRunden.X = 497
+    lblRunden.X = 567
+    lblNr1.X = 175
+    txtLaengeSpur1.X = 210
+    lblLaenge1.X = 273
+    txtFahrerSpur1.X = 175
+    txtFahrzeugSpur1.X = 175
+    lblStrafzeit.X = 77
+    lblStrafzeitSpur1.X = 294
+    lblStrafzeitSpur2.X = 518
+    lblStrafzeitSpur3.X = 742
+    lblStrafzeitSpur4.X = 966
+    lblRundeSpur1.X = 329
+    lblLetzteRundeSpur1.X = 252
+    lblBesteRundeSpur1.X = 252
+    lblFahrzeitSpur1.X = 210
+    lblSpur1Spur1.X = 210
+    lblSpur1Spur2.X = 210
+    lblSpur1Spur3.X = 210
+    lblSpur1Spur4.X = 210
+    lblNr2.X = 399
+    txtLaengeSpur2.X = 434
+    lblLaenge2.X = 497
+    txtFahrerSpur2.X = 399
+    txtFahrzeugSpur2.X = 399
+    lblRundeSpur2.X = 553
+    lblLetzteRundeSpur2.X = 476
+    lblBesteRundeSpur2.X = 476
+    lblFahrzeitSpur2.X = 434
+    lblSpur2Spur1.X = 434
+    lblSpur2Spur2.X = 434
+    lblSpur2Spur3.X = 434
+    lblSpur2Spur4.X = 434
+    lblNr3.X = 623
+    txtLaengeSpur3.X = 658
+    lblLaenge3.X = 721
+    txtFahrerSpur3.X = 623
+    txtFahrzeugSpur3.X = 623
+    lblRundeSpur3.X = 777
+    lblLetzteRundeSpur3.X = 700
+    lblBesteRundeSpur3.X = 700
+    lblFahrzeitSpur3.X = 658
+    lblSpur3Spur1.X = 658
+    lblSpur3Spur2.X = 658
+    lblSpur3Spur3.X = 658
+    lblSpur3Spur4.X = 658
+    lblSpur3.Visible = TRUE
+    lblSpur1Spur3.Visible = TRUE
+    lblSpur2Spur3.Visible = TRUE
+    lblSpur3Spur3.Visible = TRUE
+    txtLaengeSpur3.Enabled = TRUE
+    txtFahrerSpur3.Enabled = TRUE
+    txtFahrzeugSpur3.Enabled = TRUE
+    txtLaengeSpur4.Enabled = TRUE
+    txtFahrerSpur4.Enabled = TRUE
+    txtFahrzeugSpur4.Enabled = TRUE
+  ENDIF
+END

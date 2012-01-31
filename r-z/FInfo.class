@@ -1,0 +1,66 @@
+' Gambas class file
+
+' Formel-X, a Round counter for slotcar-roads about a light barrier.
+' ----------------------------------------------------------------------------
+' FInfo IS part OF Formel-X.
+'
+' Copyright (C) 2011, 2012 Hermann Friedhoff <foto-schubser@arcor.de>
+'
+' Formel-X IS free software: you can redistribute it AND / OR modify
+' it under the terms OF the GNU General PUBLIC License AS published by
+' the Free Software Foundation, either version 3 OF the License, OR
+' (at your option) any later version.
+'
+' Formel-X IS distributed IN the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty OF
+' MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.See the
+' GNU General PUBLIC License FOR more details.
+'
+' You should have received a COPY OF the GNU General PUBLIC License
+' along WITH Formel-X. If NOT, see <http://www.gnu.org/licenses/>.
+' ----------------------------------------------------------------------------
+
+PUBLIC sInitPfad AS String = User.Home & "/." & Application.Name          ' Pfad & Name vom versteckten Ordner im Benutzer-Ordner
+PUBLIC sBilderOrdner AS String = "/images"                                ' Ordner der Bilder
+
+PUBLIC SUB _new()
+  DIM sDatei AS String                                                    ' Pfad & Name
+  DIM sDatenPfad AS String                                                ' Pfad für die Programm-Dateien
+  sDatenPfad = File.Load(sInitPfad & "/Datenpfad.init")                   ' Dateienpfad laden
+  sDatei = sDatenPfad & sBilderOrdner & "/r-z.png"                        ' Pfad und Name vom Programm-Icon
+  IF Exist(sDatei) THEN FInfo.Icon = Picture[sDatei]                      ' Programm-Icon laden und anzeigen
+  sDatei = sDatenPfad & sBilderOrdner & "/Yeti.png"                       ' Pfad und Name vom Yeti-Bild
+  IF Exist(sDatei) THEN imgYeti.Picture = Picture[sDatei]                 ' Yeti-Bild laden und anzeigen
+  sDatei = sDatenPfad & sBilderOrdner & "/Federhalter.png"                ' Pfad und Name vom DankeAn-Bild
+  IF Exist(sDatei) THEN imgAutoren.Picture = Picture[sDatei]              ' DankeAn-Bild laden und anzeigen
+  sDatei = sDatenPfad & sBilderOrdner & "/Rolle.png"                      ' Pfad und Name vom Urheberrecht-Bild
+  IF Exist(sDatei) THEN imgUrheberrecht.Picture = Picture[sDatei]         ' Urheberrecht-Bild laden und anzeigen
+  sDatei = sDatenPfad & sBilderOrdner & "/Zettel.png"                     ' Pfad und Name vom Urheberrecht-Bild
+  IF Exist(sDatei) THEN imgDankeAn.Picture = Picture[sDatei]              ' Urheberrecht-Bild laden und anzeigen
+  sDatei = sDatenPfad & "/Formel-X"                                       ' Pfad und Name vom FormelX-Text
+  IF Exist(sDatei) THEN txaReadme.Text = File.Load(sDatei)                ' FormelX-Text laden und anzeigen
+  sDatei = sDatenPfad & "/AUTHORS"                                        ' Pfad und Name vom AUTHORS-Text
+  IF Exist(sDatei) THEN txaAutoren.Text = File.Load(sDatei)               ' AUTHORS-Text laden und anzeigen
+  sDatei = sDatenPfad & "/COPYING"                                        ' Pfad und Name vom COPYING-Text
+  IF Exist(sDatei) THEN txaUrheberrecht.Text = File.Load(sDatei)          ' COPYING-Text laden und anzeigen
+  sDatei = sDatenPfad & "/THANKS"                                         ' Pfad und Name vom THANKS-Text
+  IF Exist(sDatei) THEN txaDankeAn.Text = File.Load(sDatei)               ' THANKS-Text laden und anzeigen
+  FInfo.Text = "Info - " & Application.Name                               ' Dialogname um Programmnamen erweitern
+                                                                          ' Start für Windows am 01.03.1999
+  txlStart.Text = txlStart.Text & "06.12.2011"                            ' Datum der Erstellung des Programms anzeigen
+  txlStand.Text = txlStand.Text & "29.01.2012"                            ' Datum der letzten Änderung am Programm anzeigen
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+PUBLIC SUB Form_Open()
+  FInfo.ShowModal                                                         ' Dialog anzeigen
+END
+
+PUBLIC SUB Form_Close()
+  ME.Close                                                                ' Dialog schließen und zurück zum Programm
+END
+
+PUBLIC SUB btnOK_Click()                                                  ' der Knopf "OK" wurde gedrückt
+  Form_Close()                                                            ' Form_Close() zum Beenden aufrufen
+END

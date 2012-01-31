@@ -1,0 +1,42 @@
+# Gambas Form File 2.0
+
+{ Form Form
+  MoveScaled(0,0,81,55)
+  Text = ("Rennen beendet")
+  { imgGewonnen PictureBox
+    MoveScaled(0,0,81,55)
+    Stretch = True
+  }
+  { lblName Label
+    MoveScaled(8,7,49,5)
+    Font = Font["Times New Roman,+8"]
+    Background = Color.TextBackground
+    Text = ("Naubaddi Niemand")
+    Alignment = Align.Center
+  }
+  { lblGewonnen Label
+    MoveScaled(8,14,49,5)
+    Font = Font["Times New Roman,+8"]
+    Background = Color.TextBackground
+    Text = ("hat das Rennen gewonnen!")
+    Alignment = Align.Center
+  }
+  { lblFahrzeug Label
+    MoveScaled(8,21,49,5)
+    Font = Font["Times New Roman,+8"]
+    Background = Color.TextBackground
+    Text = ("Raketopet 3000")
+    Alignment = Align.Center
+  }
+  { lblRundenzeit Label
+    MoveScaled(8,28,49,5)
+    Font = Font["Times New Roman,+8"]
+    Background = Color.TextBackground
+    Text = ("mittlere Rundenzeit")
+    Alignment = Align.Center
+  }
+  { btnOK Button
+    MoveScaled(62,43,12,4)
+    Text = ("OK")
+  }
+}

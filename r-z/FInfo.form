@@ -1,0 +1,91 @@
+# Gambas Form File 2.0
+
+{ Form Form
+  MoveScaled(0,0,102,65)
+  Text = ("Info")
+  Border = Window.Fixed
+  { tabInfo TabStrip
+    MoveScaled(2,2,98,54)
+    Count = 4
+    Index = 0
+    Text = ("Formel X")
+    { txlGambas TextLabel
+      MoveScaled(70,1,26,3)
+      Background = Color.Background
+      Text = ("Programmiert mit Gambas")
+      Alignment = Align.Center
+    }
+    { imgYeti PictureBox
+      MoveScaled(70,5,26,34)
+      Background = Color.Background
+      Stretch = True
+    }
+    { txlStart TextLabel
+      MoveScaled(70,40,26,3)
+      Background = Color.Background
+      Text = ("Start: ")
+      Alignment = Align.Left
+    }
+    { txlStand TextLabel
+      MoveScaled(70,45,26,3)
+      Background = Color.Background
+      Text = ("Stand: ")
+      Alignment = Align.Right
+    }
+    { txaReadme TextArea
+      MoveScaled(1,1,67,47)
+      Background = Color.Background
+      Text = ("Die Datei Formel-X fehlt!")
+      ReadOnly = True
+      Wrap = True
+      Border = False
+    }
+    Index = 1
+    Text = ("Autoren")
+    { imgAutoren PictureBox
+      MoveScaled(1,1,95,47)
+      Stretch = True
+    }
+    { txaAutoren TextArea
+      MoveScaled(22,6,55,38)
+      Background = Color.Background
+      Text = ("Die Datei AUTHORS fehlt!")
+      ReadOnly = True
+      Wrap = True
+      Border = False
+    }
+    Index = 2
+    Text = ("Urheberrecht")
+    { imgUrheberrecht PictureBox
+      MoveScaled(1,1,95,47)
+      Stretch = True
+    }
+    { txaUrheberrecht TextArea
+      MoveScaled(10,4,82,41)
+      Text = ("Die Datei COPYING fehlt!")
+      ReadOnly = True
+      Wrap = True
+      Border = False
+    }
+    Index = 3
+    Text = ("Danke an")
+    { imgDankeAn PictureBox
+      MoveScaled(1,1,95,47)
+      Stretch = True
+    }
+    { txaDankeAn TextArea
+      MoveScaled(19,8,59,34)
+      Text = ("Die Datei THANKS fehlt!")
+      ReadOnly = True
+      Wrap = True
+      Border = False
+    }
+    Index = 0
+  }
+  { btnOK Button
+    MoveScaled(45,59,12,4)
+    Text = ("OK")
+    Default = True
+    Cancel = True
+  }
+}

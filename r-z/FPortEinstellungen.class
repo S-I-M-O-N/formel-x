@@ -1,0 +1,95 @@
+' Gambas class file
+
+' Formel-X, a Round counter for slotcar-roads about a light barrier.
+' ----------------------------------------------------------------------------
+' FPortEinstellungen IS part OF Formel-X.
+'
+' Copyright (C) 2011, 2012 Hermann Friedhoff <foto-schubser@arcor.de>
+'
+' Formel-X IS free software: you can redistribute it AND / OR modify
+' it under the terms OF the GNU General PUBLIC License AS published by
+' the Free Software Foundation, either version 3 OF the License, OR
+' (at your option) any later version.
+'
+' Formel-X IS distributed IN the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty OF
+' MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.See the
+' GNU General PUBLIC License FOR more details.
+'
+' You should have received a COPY OF the GNU General PUBLIC License
+' along WITH Formel-X. If NOT, see <http://www.gnu.org/licenses/>.
+' ----------------------------------------------------------------------------
+
+PUBLIC sInitPfad AS String = User.Home & "/." & Application.Name          ' Pfad zum versteckten Ordner im User-Ordner
+PUBLIC sBilderOrdner AS String = "/images"                                ' Ordner der Bilder
+
+PUBLIC SUB _new()
+  DIM sDatei AS String                                                    ' Pfad & Name
+  DIM sDatenPfad AS String                                                ' Pfad für die Programm-Dateien
+  sDatenPfad = File.Load(sInitPfad & "/Datenpfad.init")                   ' Dateienpfad laden
+  sDatei = sDatenPfad & sBilderOrdner & "/r-z.png"                        ' Pfad und Name vom Programm-Icon
+  IF Exist(sDatei) THEN FPortEinstellungen.Icon = Picture[sDatei]         ' Programm-Icon laden und anzeigen
+  FPortEinstellungen.Text = "Port Einstellungen - " & Application.Name    ' Dialogname um Programmnamen erweitern
+  PortInitLaden()                                                         ' Einstellungen für den Seriellen Port laden
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+PUBLIC SUB Form_Open()
+  FPortEinstellungen.ShowModal                                            ' Dialog anzeigen
+END
+
+PUBLIC SUB Form_Close()
+  ME.Close                                                                ' Dialog schließen und zurück zum Programm
+END
+
+PUBLIC SUB btnOK_Click()                                                  ' der Knopf "OK" wurde gedrückt
+  PortinitSpeichern()                                                     ' Einstellungen für den Seriellen Port speichern
+  Form_Close()                                                            ' Form_Close() zum Beenden aufrufen
+END
+
+PUBLIC SUB PortInitLaden()                                                ' Datei laden
+  DIM sDatei AS String                                                    ' Dateiname
+  DIM hDatei AS File                                                      ' Handle der Datei
+  DIM sZeile AS String                                                    ' eine Zeile
+  txtPort.Text = "/dev/ttyUSB0"                                           ' Name der Schnittstelle
+  cmbSpeed.Text = 19200                                                   ' Geschwindigkeit
+  cmbData.Text = 8                                                        ' Datenbits
+  cmbParity.Index = 0                                                     ' Parität
+  cmbStop.Text = 1                                                        ' Stoppbits
+  cmbFlow.Index = 0                                                       ' Datenfluss
+  sDatei = sInitPfad & "/Port.init"                                       ' Pfad & Name der Portinitdatei
+  IF Exist(sDatei) THEN                                                   ' wenn eine Datei existiert
+    OPEN sDatei FOR READ AS #hDatei                                       ' Datei öffnen zum lesen
+      WHILE NOT Eof(hDatei)                                               ' bis zum Dateiende wiederholen
+        LINE INPUT #hDatei, sZeile                                        ' eine Zeile der Init-Datei einlesen
+        IF InStr(sZeile, "Port=") THEN txtPort.Text = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Speed=") THEN cmbSpeed.Text = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Data=") THEN cmbData.Text = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Parity=") THEN cmbParity.Index = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Stop=") THEN cmbStop.Text = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+        IF InStr(sZeile, "Flow=") THEN cmbFlow.Index = Right$(sZeile, Len(sZeile) - InStr(sZeile, "="))
+      WEND
+    CLOSE #hDatei                                                         ' Datei schließen
+  ENDIF
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END
+
+PUBLIC SUB PortinitSpeichern()                                            ' Datei speichern
+  DIM sDatei AS String                                                    ' Dateiname
+  DIM hDatei AS File                                                      ' Handle der Datei
+  sDatei = sInitPfad & "/Port.init"                                       ' Pfad & Name der Portinitdatei
+  hDatei = OPEN sDatei FOR CREATE                                         ' Datei öffnen zum Schreiben/Überschreiben
+    PRINT #hDatei, Application.Name & " - Port Einstellungen"             ' Dateiname des Programms und Funktion der Datei
+    PRINT #hDatei, ""                                                     ' eine leere Zeile
+    PRINT #hDatei, "Port=" & txtPort.Text                                 ' Portname
+    PRINT #hDatei, "Speed=" & cmbSpeed.Text                               ' Geschwindigkeit
+    PRINT #hDatei, "Data=" & cmbData.Text                                 ' Daten Bits
+    PRINT #hDatei, "Parity=" & cmbParity.Index                            ' Parität
+    PRINT #hDatei, "Stop=" & cmbStop.Text                                 ' Stopp Bits
+    PRINT #hDatei, "Flow=" & cmbFlow.Index                                ' Datenfluss
+  CLOSE #hDatei                                                           ' Datei schließen
+CATCH                                                                     ' Fehler abfangen
+  Message.Error(Error.Text)                                               ' Fehler anzeigen
+END

@@ -1,0 +1,69 @@
+# Gambas Form File 2.0
+
+{ Form Form
+  MoveScaled(70,26.5714,50,34)
+  Text = ("Port Einstellungen")
+  Border = Window.Fixed
+  { Label1 Label
+    MoveScaled(3,2,20,3)
+    Text = ("Portname:")
+  }
+  { txtPort TextBox
+    MoveScaled(27,2,20,3)
+    Text = ("/dev/ttyUSB0")
+  }
+  { Label2 Label
+    MoveScaled(3,6,20,3)
+    Text = ("Geschwindigkeit:")
+  }
+  { cmbSpeed ComboBox
+    MoveScaled(33,6,14,3)
+    Text = ("")
+    ReadOnly = True
+    List = [("1200"), ("2400"), ("4800"), ("9600"), ("19200"), ("38400")]
+  }
+  { Label3 Label
+    MoveScaled(3,10,20,3)
+    Text = ("Daten Bits:")
+  }
+  { cmbData ComboBox
+    MoveScaled(33,10,14,3)
+    Text = ("")
+    ReadOnly = True
+    List = [("8"), ("7"), ("6"), ("5")]
+  }
+  { Label4 Label
+    MoveScaled(3,14,20,3)
+    Text = ("Daten Pr\xC3\xBCfung:")
+  }
+  { cmbParity ComboBox
+    MoveScaled(33,14,14,3)
+    Text = ("")
+    ReadOnly = True
+    List = [("KEINE"), ("Gleichm\xC3\xA4\xC3\x9Fig"), ("Ungerade")]
+  }
+  { Label5 Label
+    MoveScaled(3,18,20,3)
+    Text = ("Stopp Bits:")
+  }
+  { cmbStop ComboBox
+    MoveScaled(33,18,14,3)
+    Text = ("")
+    ReadOnly = True
+    List = [("1"), ("2")]
+  }
+  { Label6 Label
+    MoveScaled(3,22,20,3)
+    Text = ("Datenflusssteuerung:")
+  }
+  { cmbFlow ComboBox
+    MoveScaled(27,22,20,3)
+    Text = (" ")
+    ReadOnly = True
+    List = [("KEINE"), ("CRTSCTS"), ("XON/XOFF"), ("CRTSCTS + XON/XOFF")]
+  }
+  { btnOK Button
+    MoveScaled(19,28,12,4)
+    Text = ("OK")
+  }
+}

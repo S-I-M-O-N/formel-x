@@ -3,9 +3,13 @@
 *~
 .directory
 *.gambas
+Schmierzettel
+Standard.liste
+
 r-z/.icon.png
 r-z/.settings
 r-z/.lang/*.mo
 
 r-z/.gambas/
+
 quellen/
