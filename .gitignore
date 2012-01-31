@@ -1,0 +1,11 @@
+# Dateien und Ordner die ignorriert werden
+
+*~
+.directory
+*.gambas
+r-z/.icon.png
+r-z/.settings
+r-z/.lang/*.mo
+
+r-z/.gambas/
+quellen/
