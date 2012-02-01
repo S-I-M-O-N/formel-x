@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Formel X
+Name[de]=Formel X
+Comment=Slap car lap counter
+Comment[de]=Slap Car Rundenzähler
+Exec=/usr/games/formel-x
+Icon=/usr/share/pixmaps/formel-x.xpm
+Categories=Game;SportsGame;

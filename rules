@@ -1,0 +1,39 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+export DH_VERBOSE=1
+
+%:
+	dh $@ 
+
+DEBDIR = debian/formel-x
+
+override_dh_auto_build:
+	gbc2 -a r-z/
+	gba2 -v r-z/
+
+override_dh_auto_clean:
+	rm -rf 755/ r-z/.gambas/ r-z/r-z.gambas
+	dh_auto_clean
+
+override_dh_auto_install:
+	install -d 755 $(DEBDIR)/usr/games/
+	install -m 644 r-z/r-z.gambas $(DEBDIR)/usr/games/formel-x
+#
+	install -d 755 $(DEBDIR)/usr/share/games/formel-x/
+	install -d 755 $(DEBDIR)/usr/share/games/formel-x/images/
+	install -d 755 $(DEBDIR)/usr/share/games/formel-x/sounds/
+	install -m 644 images/* $(DEBDIR)/usr/share/games/formel-x/images/
+	install -m 644 sounds/* $(DEBDIR)/usr/share/games/formel-x/sounds/
+	install -m 644 Formel-X $(DEBDIR)/usr/share/games/formel-x/
+	install -m 644 AUTHORS $(DEBDIR)/usr/share/games/formel-x/
+	install -m 644 THANKS $(DEBDIR)/usr/share/games/formel-x/
+	install -m 644 Bauplan.pdf $(DEBDIR)/usr/share/games/formel-x/
+#
+	install -d 755 $(DEBDIR)/usr/share/applications/
+	install -m 644 debian/formel-x.desktop $(DEBDIR)/usr/share/applications/
+#
+	install -d 755 $(DEBDIR)/usr/share/pixmaps/
+	install -m 644 debian/formel-x.xpm $(DEBDIR)/usr/share/pixmaps/
+
+override_dh_installchangelogs:
+	dh_installchangelogs ChangeLog

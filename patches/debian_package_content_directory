@@ -1,0 +1,12 @@
+# add fhs 2.3 compliant path for programm data
+--- a/r-z/FMain.class
++++ b/r-z/FMain.class
+@@ -24,7 +24,7 @@
+ ' >>> Globale Variablen
+ '----------------------------------------------------------------------------------------------------------------------------------
+ 
+-PUBLIC sDatenPfad AS String = ""                                          ' Pfad für die Programm-Dateien (harte Eingabe hier ;-) )
++PUBLIC sDatenPfad AS String = "/usr/share/games/formel-x"                 ' Pfad für die Programm-Dateien (harte Eingabe hier ;-) )
+ PUBLIC sBilderOrdner AS String = "/images"                                ' Ordner der Bilder
+ PUBLIC sTonOrdner AS String = "/sounds"                                   ' Ordner der Töne
+ 

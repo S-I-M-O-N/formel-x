@@ -1,0 +1,2 @@
+# gpl-3+ is on debian systems always installed in /usr/share/common-licenses/GPL-3
+formel-x: package-contains-broken-symlink usr/share/games/formel-x/COPYING ../../common-licenses/GPL-3

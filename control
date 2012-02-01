@@ -1,0 +1,12 @@
+Source: formel-x
+Section: games
+Priority: optional
+Maintainer: Dominique Lasserre <lasall42@gmail.com>
+Build-Depends: debhelper (>= 7.0.50~), gambas2, base-files (>= 4.0.1)
+Standards-Version: 3.9.2
+Homepage: http://code.google.com/p/formel-x
+
+Package: formel-x
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, gambas2-runtime
+Description: simple slot car lap counter

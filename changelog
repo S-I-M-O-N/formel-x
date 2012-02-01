@@ -1,0 +1,15 @@
+formel-x (1.0.6-1) unstable; urgency=low
+
+  * New upstream version.
+  * Fixes missing icons and sounds (patch debian_package_content_directory).
+  * Freedesktop and Debian menu entries added.
+  * Bauplan.pdf to doc-base database added.
+  * Add dependency to base-files to link to GPL-3+.
+
+ -- Dominique Lasserre <lasall42@gmail.com>  Wed, 01 Feb 2012 13:53:50 +0100
+
+formel-x (1.0.3-1) unstable; urgency=low
+
+  * Initial release.
+
+ -- Dominique Lasserre <lasall42@gmail.com>  Sat, 28 Jan 2012 23:47:58 +0100

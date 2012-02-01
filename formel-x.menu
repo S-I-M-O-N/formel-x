@@ -1,0 +1,7 @@
+?package(formel-x):\
+  needs="X11"\
+  section="Games/Tools"\
+  title="Formel X"\
+  command="/usr/games/formel-x"\
+  icon="/usr/share/pixmaps/formel-x.xpm"\
+  longtitle="Slap car lap counter"
