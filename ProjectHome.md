@@ -1,0 +1,3 @@
+Formel X, ein Rundenzaehler für SlotCar-Bahnen ueber eine Lichtschranke.
+
+Für SlotCar-Fahrer/innen zu Hause die nur so zum Spaß Runden drehen, naja, es soll schon eine genaue Zeitmessung mit ein paar Extras sein. Dann sollte es so kostengünstig wie möglich sein, was mir glaube ich gelungen ist. Die Software ist Open Source und der Schaltplan für eine Lichtschranke auch, Wer möchte kann/darf die Software/Hardware Seinen Bedürfnissen anpassen.
